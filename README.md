@@ -49,6 +49,8 @@ Here I'll post the hardware that I'm using and where I bought it. Mostly, it's o
 * Temperature and relative humidity sensor - DHT11 - https://www.aliexpress.com/item/New-DHT11-Temperature-And-Relative-Humidity-Sensor-Module-For-Arduino/32802129494.html?spm=a2g0s.9042311.0.0.D4HhqX | __$1__
 * Relay 1 channel - https://www.aliexpress.com/item/1pcs-KY-019-5V-One-1-Channel-Relay-Module-Board-Shield-For-PIC-AVR-DSP-ARM/32802892040.html?spm=a2g0s.9042311.0.0.D4HhqX __$1__
 * Prototype board - https://www.aliexpress.com/item/B1307-Free-shipping-10pcs-Double-Side-Prototype-PCB-diy-Universal-Printed-Circuit-Board-5x7cm/32352552510.html?spm=2114.search0104.3.29.nVPQps&ws_ab_test=searchweb0_0,searchweb201602_4_10152_10151_10065_10344_10068_10342_51102_10343_10340_10341_10084_10083_10307_10301_10303_10312_10313_10059_10314_10534_100031_10604_10103_10605_10594_10142-normal#cfs,searchweb201603_25,ppcSwitch_5&algo_expid=e8c37783-1a55-41a7-aa64-2a65db2bfa78-4&algo_pvid=e8c37783-1a55-41a7-aa64-2a65db2bfa78&rmStoreLevelAB=5 | __$2-$3__
+* Amplifier 1.4W - TPA2005D1 | __$6-$7__
+* Speaker - 8ohm ø57mm 0.25W | __$1__
 
 ## 3D models
 Here you can find links to the 3D parts that I've designed in TinkerCAD. They are public, so you can grab them and remix them if you like. I'm using an Ultimaker 2 GO, which is a small printer, so these models should easily print on about any machine.
@@ -57,6 +59,8 @@ Here you can find links to the 3D parts that I've designed in TinkerCAD. They ar
 * Speaker module - https://www.tinkercad.com/things/66gCLMuzKD2
 * Speaker top module - https://www.tinkercad.com/things/8jMyELo6IXI
 * Water tank module - https://www.tinkercad.com/things/9iR5u62zSzV
+<br /><br />
+* Empire logo - This one is not designed by me. I found it on Thingiverse by newayb - https://www.thingiverse.com/thing:590307
 
 ## Python libraries and stuff
 In this project I'm using a couple of libraries that you'll probably have to install to run the program. Google how to install these on your system.
@@ -70,7 +74,10 @@ I'll explain what the different modules do here.
 
 ## Speaker / Light module
 ![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/speaker_module.jpg "Speaker Module")<br /><br />
+The speaker module contains a small speaker and an amplifier (the red little board), with a pot for volume as you can see on the left side of the picture. You can also see the LED diods that I have soldered to a prototype board with resistors. Everything is then glued on.<br />To the right you can see the front, where I've glued on an empire (Star Wars) logo as speaker grille. Above the speaker you see a sort of see through pane which I created (once again) out of glue. This makes the LED lights looking a bit cooler (in my opinion), since you don't really see the individual diods.<br />There's also a separate top and back which will be glued on.
 
+## Pot module
+There's not really that much to say about this module, more than that this is where the plant resides.
 
 ## History and ideas
 ![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/fortproj2-2.jpg "Sketch")
