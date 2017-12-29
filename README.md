@@ -33,6 +33,13 @@ Here you can find links to the 3D parts that I've designed in TinkerCAD. I'm usi
 * Speaker top module - https://www.tinkercad.com/things/8jMyELo6IXI
 * Water tank module - https://www.tinkercad.com/things/9iR5u62zSzV
 
+## Python libraries and stuff
+In this project I'm using a couple of libraries that you'll probably have to install to run the program. Google how to install these on your system.
+* Paramiko - Uploading of files via SFTP to server
+* Adafruit_DHT - To make easy use of the DHT11 sensor
+* gTTS - Google text to speech
+* YAML - To store and retrieve credentials from external yml file
+
 ## History and ideas
 ![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/fortproj2-2.jpg "Sketch")
 This is how it all started. With a sketch on my whiteboard at the office. I wanted to learn more about Python3 and what you can do with programming.<br />
