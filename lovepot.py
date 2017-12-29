@@ -11,6 +11,7 @@ from threading import Thread
 import urllib
 import yaml
 import paramiko
+import tweepy
 
 locale.setlocale(locale.LC_ALL, 'en_GB.UTF-8')
 
@@ -266,7 +267,10 @@ def led_rolling():
 # Temp and humidity
 def temp_humidity():
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
-	print("Temperature: {0:0.1f} C  Humidity: {1:0.1f} %".format(temperature, humidity))
+	global tweetMessage
+	tweetMessage = "Temperature: {0:0.1f} C  Humidity: {1:0.1f} %".format(temperature, humidity)
+	print(tweetMessage)
+	tweet()
 
 # Logging of statistics
 def logging():
@@ -315,7 +319,7 @@ def internet_on():
 		os.system("mpg321 -q internet_on.mp3")
 		ledSwitch = 0
 
-######### FILE UPLOADS #################
+# FILE UPLOADS
 
 # Init files upload
 def fileupload_init():
@@ -367,6 +371,48 @@ def fileupload_stats():
 	transport.close()
 	print("Stat file has been uploaded.")
 
+# COMMUNICATIONS
+
+# Twitter
+
+def tweet():
+	try:
+		conf = yaml.load(open('credentials.yml'))
+
+		consumer_key = conf['twitter']['consumer_key']
+		consumer_secret = conf['twitter']['consumer_secret']
+		access_token = conf['twitter']['access_token']
+		access_token_secret = conf['twitter']['access_token_secret']
+
+		auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+		auth.set_access_token(access_token, access_token_secret)
+		api = tweepy.API(auth)
+
+		api.update_status(status=tweetMessage)
+	except:
+		print("Error sending tweet.")
+		pass
+
+def tweet_follow():
+	try:
+		conf = yaml.load(open('credentials.yml'))
+
+		consumer_key = conf['twitter']['consumer_key']
+		consumer_secret = conf['twitter']['consumer_secret']
+		access_token = conf['twitter']['access_token']
+		access_token_secret = conf['twitter']['access_token_secret']
+
+		auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+		auth.set_access_token(access_token, access_token_secret)
+		api = tweepy.API(auth)
+
+		for follower in tweepy.Cursor(api.followers).items():
+			follower.follow()
+	except:
+		print("Error Twitter.")
+		pass
+
+
 #################### MAIN PROGRRAM #################################
 
 try:
@@ -387,6 +433,7 @@ try:
 		print("9. Hygro off\n")
 		print("10. Logging and upload\n")
 		print("11. Upload init\n")
+		print("12. Tweet follow\n")
 		val = input("\n>>> ")
 		if val == "1":
 			time.sleep(button_delay)
@@ -420,6 +467,8 @@ try:
 			fileupload_stats()
 		if val =="11":
 			fileupload_init()
+		if val =="12":
+			tweet_follow()
 
 
 finally:
