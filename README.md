@@ -31,12 +31,15 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [ ] Design and build casings and pots using 3D-software and printing - I'm designing it by using modules. A pot module, speaker/light module, water tank and so on.
 - [x] Design and solder some simple circuit boards - Must learn to solder
 - [ ] Send warnings and status via e-mail or sms or slack or...
+- [x] Twitter - The pot should be able to tweet. It's twitter account is @empireplantbot
 - [ ] Fail safes - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
 - [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
 - [x] Glue gun - Glue the s--t out of everything
 
 ## Updates
-__29 dec 2017 - Initial upload__
+* __29 dec 2017 - Twitter capabilities__<br />
+The program is now able to tweet, using Tweepy within Python. A function is setup and it's tweeting whatever is stored in the variable tweetMessage.
+* __29 dec 2017 - Initial upload__<br />
 Today is the day when I decided to start this GitHub project. More info will be added, but most importantly, this is a work in progress. I've been working on this project for a while, but I thought I ought to document it, so stay tuned.
 
 ## Hardware
@@ -68,6 +71,7 @@ In this project I'm using a couple of libraries that you'll probably have to ins
 * Adafruit_DHT - To make easy use of the DHT11 sensor
 * gTTS - Google text to speech
 * YAML - To store and retrieve credentials from external yml file
+* Tweepy - so that the pot can tweet on Twitter
 
 # Modules
 I'll explain what the different modules do here.
