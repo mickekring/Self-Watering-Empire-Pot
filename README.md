@@ -1,17 +1,18 @@
 # Self Watered Empire Pot
-What is this? Well, it's a simple project for me to learn more about electronics but mostly about learning Python3. So the basics is; to design and 3D-print all parts, which will be a pot, a speaker, a water tank and some kind of housing for the Raspberry Pi. After that, I'll attach a couple of sensors measuring soil moisture, temperature, humidity and a couple of more things hopefully. We'll see what I can come up with.<br />
+__What is this? Well, it's a simple project for me to learn more about electronics but mostly about learning Python3. So the basics is; to design and 3D-print all parts, which will be a pot, a speaker, a water tank and some kind of housing for the Raspberry Pi. After that, I'll attach a couple of sensors measuring soil moisture, temperature, humidity and a couple of more things hopefully. We'll see what I can come up with.<br />
 When the soil moisture levels are below a certain number a water pump will pump water into the pot.<br />
-So why "empire"? Well, I wanted to throw a bit of Star Wars at it. :)
+So why "empire"? Well, I wanted to throw a bit of Star Wars at it. :)__
 
 ## Work in progress
 This project is a work in progress. Check updates for more information.
 
 ## Where I'm at - at the moment
-Here you'll find a short movie of the latest state of the project.
+Here you'll find short movies of the latest state of the project.<br /><br />
+[![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/2017-12-29.jpg "Latest state")](https://vimeo.com/249059304/2b951d0b1a)
 
 ## Updates
 __29 dec 2017 - Initial upload__
-Today is the day when I decided to start this GitHub project. More info will be added, and most importantly, this is a work in progress.
+Today is the day when I decided to start this GitHub project. More info will be added, but most importantly, this is a work in progress. I've been working on this project for a while, but I thought I ought to document it, so stay tuned.
 
 ## Hardware
 Here I'll post the hardware that I'm using and where I bought it. Mostly, it's off Aliexpress, but you can find these generic part pretty much anywhere. I'll add to the list as the project expands.
@@ -31,3 +32,8 @@ Here you can find links to the 3D parts that I've designed in TinkerCAD. I'm usi
 * Speaker module - https://www.tinkercad.com/things/66gCLMuzKD2
 * Speaker top module - https://www.tinkercad.com/things/8jMyELo6IXI
 * Water tank module - https://www.tinkercad.com/things/9iR5u62zSzV
+
+## History and ideas
+![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/fortproj2-2.jpg "Sketch")
+This is how it all started. With a sketch on my whiteboard at the office. I wanted to learn more about Python3 and what you can do with programming.<br />
+More info will be written...
