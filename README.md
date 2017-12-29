@@ -1,10 +1,13 @@
 # Self Watered Empire Pot
-What is this? Well, it's a simple project for me to learn more about electronics but mostly about learning Python3. So the basics is; to design and 3D-print all parts, which will be a pot, a speaker, a water tank and some kind of housing for the Raspberry Pi. After that, I'll attach a couple of sensors measuring soil moisture, temperature, humidity and a couple of more things hopefully. We'll see what I can come up with. 
-When the soil moisture levels are below a certain number a water pump will pump water into the pot.
+What is this? Well, it's a simple project for me to learn more about electronics but mostly about learning Python3. So the basics is; to design and 3D-print all parts, which will be a pot, a speaker, a water tank and some kind of housing for the Raspberry Pi. After that, I'll attach a couple of sensors measuring soil moisture, temperature, humidity and a couple of more things hopefully. We'll see what I can come up with.<br />
+When the soil moisture levels are below a certain number a water pump will pump water into the pot.<br />
 So why "empire"? Well, I wanted to throw a bit of Star Wars at it. :)
 
 ## Work in progress
 This project is a work in progress. Check updates for more information.
+
+## Where I'm at - at the moment
+Here you'll find a short movie of the latest state of the project.
 
 ## Updates
 __29 dec 2017 - Initial upload__
