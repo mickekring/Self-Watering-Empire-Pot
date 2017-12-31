@@ -473,5 +473,5 @@ def Main():
 		print("GPIO Clean up")
 		GPIO.cleanup()
 
-if __name__ == "__name__":
+if __name__ == "__main__":
 	Main()
