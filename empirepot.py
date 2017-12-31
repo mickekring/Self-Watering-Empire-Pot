@@ -1,17 +1,10 @@
 import RPi.GPIO as GPIO
-import time, random, math, threading, datetime, locale, os, sys
+import time, random, math, threading, datetime, locale, os, sys, Adafruit_DHT, urllib, yaml, paramiko, tweepy
 from gtts import gTTS
 from gpiozero import CPUTemperature
-import Adafruit_DHT
 from time import strftime
 from time import sleep
-from multiprocessing import Process
-import threading
 from threading import Thread
-import urllib
-import yaml
-import paramiko
-import tweepy
 from twilio.rest import Client
 
 locale.setlocale(locale.LC_ALL, 'en_GB.UTF-8')
@@ -83,20 +76,15 @@ lastWatered = "No watering since reboot of system core."
 # Loading credentials
 conf = yaml.load(open("credentials.yml"))
 
-############### FUNCTIONS ##################
-
-# Relay
-def relay_pump_on():
-	GPIO.output(relay, True)
-
-def relay_pump_off():
-	GPIO.output(relay, False)
+### FUNCTIONS ###
 
 # Water pump system - sets number of seconds that the water will pump. Change time.sleep.
 def water_pump():
-	relay_pump_on()
+	print("Relay on")
+	GPIO.output(relay, True)
 	time.sleep(3)
-	relay_pump_off()
+	print("Relay off")
+	GPIO.output(relay, False)
 
 # Main water pump system function
 def water_reading():
@@ -108,6 +96,7 @@ def water_reading():
 	global lastWatered
 	Thread(target = led_rolling).start()
 	try:
+		print("Alert! Soil moisture levels will be tested in T minus two seconds.")
 		tts = gTTS(text="Alert! Soil moisture levels will be tested in T minus two seconds." , lang='en')
 		tts.save("moisture.mp3")
 		os.system("mpg321 -q moisture.mp3")
@@ -135,6 +124,7 @@ def water_reading():
 		waterLevel = 0
 		Thread(target = led_green_alert).start()
 		try:
+			print("Code green. We have a code green. All systems stabilized and functioning within normal parameters.")
 			tts = gTTS(text="Code green. We have a code green. All systems stabilized and functioning within normal parameters." , lang='en')
 			tts.save("green.mp3")
 			os.system("mpg321 -q green.mp3")
@@ -146,9 +136,10 @@ def water_reading():
 	if vattenbehov > 1:
 		ledSwitch = 1
 		waterLevel = 50
-		lastWatered = (("Status update. The plant was last watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
+		lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
 		Thread(target = led_red_alert).start()
 		try:
+			print("Code red. We have a code red. Watering protocols will now engage.")
 			tts = gTTS(text="Code red. We have a code red. Watering protocols will now engage." , lang='en')
 			tts.save("red.mp3")
 			os.system("mpg321 -q red.mp3")
@@ -157,6 +148,7 @@ def water_reading():
 			pass
 		time.sleep(1)
 		try:
+			print("Alert! Water pump engaging.")
 			tts = gTTS(text="Alert! Water pump engaging." , lang='en')
 			tts.save("water.mp3")
 			os.system("mpg321 -q water.mp3")
@@ -167,6 +159,7 @@ def water_reading():
 		time.sleep(10)
 		logging()
 		try:
+			print("Moisture levels will now be re-tested by secondary systems.")
 			tts = gTTS(text="Moisture levels will now be re-tested by secondary systems." , lang='en')
 			tts.save("retest.mp3")
 			os.system("mpg321 -q retest.mp3")
@@ -302,12 +295,35 @@ def temp_humidity():
 # Logging of statistics
 def logging():
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
+	print("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
 	with open("stats.csv", "a") as log:
 		log.write("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
 	fileupload_stats()
 
 # Status update with diagnostics
 def self_diagnostics():
+	led_off()
+	try:
+		print("Diagnostics start up sequence. Checking ligths.")
+		tts = gTTS(text="Diagnostics start up sequence. Checking ligths." , lang='en')
+		tts.save("diagnostics_lights.mp3")
+		os.system("mpg321 -q diagnostics_lights.mp3")
+	except:
+		print("Internet error.")
+		internet_on()
+		pass
+	time.sleep(1)
+	led_all_on()
+	time.sleep(1)
+	led_off()
+	time.sleep(1)
+	led_blue()
+	time.sleep(1)
+	led_green()
+	time.sleep(1)
+	led_red()
+	time.sleep(1)
+	led_off()
 	global ledSwitch
 	ledSwitch = 1
 	Thread(target = led_rolling).start()
@@ -324,10 +340,6 @@ def self_diagnostics():
 	ledSwitch = 0
 	time.sleep(1)
 	internet_on()
-
-# Displaying last time plant was watered
-def water_log():
-	print("Status update. The plant was last watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + "."))
 
 # Checking internet connection
 def internet_on():
@@ -510,7 +522,6 @@ def Main():
 		button_delay = 0.2
 		led_off()
 		GPIO.output(hygro_Power, False)
-		relay_pump_off()
 		while True:
 			print("\n--- TESTPROGRAM ---\n")
 			print("1. Alla lampor på\n")
@@ -538,9 +549,7 @@ def Main():
 			if val == "3":
 				water_reading()
 			if val == "4":
-				relay_pump_on()
-				time.sleep(2)
-				relay_pump_off()
+				water_pump()
 			if val == "5":
 				self_diagnostics()
 			if val == "6":
