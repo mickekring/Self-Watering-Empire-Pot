@@ -347,7 +347,6 @@ def fileupload_init():
 	transport.close()
 	print("Init files have been uploaded.")
 
-
 # Stat file upload
 def fileupload_stats():
 	conf = yaml.load(open('credentials.yml'))
@@ -412,65 +411,67 @@ def tweet_follow():
 		print("Error Twitter.")
 		pass
 
-
 #################### MAIN PROGRRAM #################################
 
-try:
-	button_delay = 0.2
-	led_off()
-	GPIO.output(hygro_Power, False)
-	relay_pump_off()
-	while True:
-		print("\n--- TESTPROGRAM ---\n")
-		print("1. Alla lampor på\n")
-		print("2. Alla lampor av\n")
-		print("3. Fuktmätning\n")
-		print("4. Relay Test\n")
-		print("5. Status\n")
-		print("6. Temp Moisture\n")
-		print("7. Internet Connection\n")
-		print("8. Hygro on\n")
-		print("9. Hygro off\n")
-		print("10. Logging and upload\n")
-		print("11. Upload init\n")
-		print("12. Tweet follow\n")
-		val = input("\n>>> ")
-		if val == "1":
-			time.sleep(button_delay)
-			print("\n### ALLA LAMPOR PÅ###\n")
-			led_all_on()
-		if val == "2":
-			time.sleep(button_delay)
-			print("\n### ALLA LAMPOR AV ###\n")
-			led_off()
-		if val == "3":
-			water_reading()
-		if val == "4":
-			relay_pump_on()
-			time.sleep(2)
-			relay_pump_off()
-		if val == "5":
-			self_diagnostics()
-		if val == "6":
-			temp_humidity()
-		if val =="7":
-			internet_on()
-		if val =="8":
-			GPIO.output(hygro_Power, True)
-			vattenbehov = GPIO.input(hygro)
-			print(vattenbehov)
-			print(lastWatered)
-		if val =="9":
-			GPIO.output(hygro_Power, False)
-		if val =="10":
-			logging()
-			fileupload_stats()
-		if val =="11":
-			fileupload_init()
-		if val =="12":
-			tweet_follow()
+def Main():
+	try:
+		button_delay = 0.2
+		led_off()
+		GPIO.output(hygro_Power, False)
+		relay_pump_off()
+		while True:
+			print("\n--- TESTPROGRAM ---\n")
+			print("1. Alla lampor på\n")
+			print("2. Alla lampor av\n")
+			print("3. Fuktmätning\n")
+			print("4. Relay Test\n")
+			print("5. Status\n")
+			print("6. Temp Moisture\n")
+			print("7. Internet Connection\n")
+			print("8. Hygro on\n")
+			print("9. Hygro off\n")
+			print("10. Logging and upload\n")
+			print("11. Upload init\n")
+			print("12. Tweet follow\n")
+			val = input("\n>>> ")
+			if val == "1":
+				time.sleep(button_delay)
+				print("\n### ALLA LAMPOR PÅ###\n")
+				led_all_on()
+			if val == "2":
+				time.sleep(button_delay)
+				print("\n### ALLA LAMPOR AV ###\n")
+				led_off()
+			if val == "3":
+				water_reading()
+			if val == "4":
+				relay_pump_on()
+				time.sleep(2)
+				relay_pump_off()
+			if val == "5":
+				self_diagnostics()
+			if val == "6":
+				temp_humidity()
+			if val =="7":
+				internet_on()
+			if val =="8":
+				GPIO.output(hygro_Power, True)
+				vattenbehov = GPIO.input(hygro)
+				print(vattenbehov)
+				print(lastWatered)
+			if val =="9":
+				GPIO.output(hygro_Power, False)
+			if val =="10":
+				logging()
+				fileupload_stats()
+			if val =="11":
+				fileupload_init()
+			if val =="12":
+				tweet_follow()
 
+	finally:
+		print("GPIO Clean up")
+		GPIO.cleanup()
 
-finally:
-	print("GPIO Clean up")
-	GPIO.cleanup()
+if __name__ == "__name__":
+	Main()
