@@ -32,7 +32,7 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [x] Design and solder some simple circuit boards - Must learn to solder
 - [ ] Send warnings and status via e-mail or sms or slack or...
 - [x] Twitter - The pot should be able to tweet. It's twitter account is @empireplantbot
-- [ ] Fail safes - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
+- [x] Fail safes - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
 - [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
 - [x] Glue gun - Glue the s--t out of everything
 
