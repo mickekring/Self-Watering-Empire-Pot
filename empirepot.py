@@ -12,6 +12,7 @@ import urllib
 import yaml
 import paramiko
 import tweepy
+from twilio.rest import Client
 
 locale.setlocale(locale.LC_ALL, 'en_GB.UTF-8')
 
@@ -77,7 +78,10 @@ cpu = CPUTemperature()
 pause_time = 0.001
 ledSwitch = 0
 waterLevel = 0
-lastWatered = "No watering since reboot of this program."
+lastWatered = "No watering since reboot of system core."
+
+# Loading credentials
+conf = yaml.load(open("credentials.yml"))
 
 ############### FUNCTIONS ##################
 
@@ -104,7 +108,7 @@ def water_reading():
 	global lastWatered
 	Thread(target = led_rolling).start()
 	try:
-		tts = gTTS(text="Alert! Soil moisture levels will we tested in T minus two seconds." , lang='en')
+		tts = gTTS(text="Alert! Soil moisture levels will be tested in T minus two seconds." , lang='en')
 		tts.save("moisture.mp3")
 		os.system("mpg321 -q moisture.mp3")
 	except:
@@ -291,7 +295,7 @@ def led_rolling():
 def temp_humidity():
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	global tweetMessage
-	tweetMessage = "Temperature: {0:0.1f} C  Humidity: {1:0.1f} %".format(temperature, humidity)
+	tweetMessage = "Plant Pot Stats: Temperature: {0:0.1f} C Humidity: {1:0.1f} %".format(temperature, humidity)
 	print("Tweeting: " + tweetMessage)
 	tweet()
 
@@ -361,7 +365,6 @@ def internet_on():
 # Init files upload
 def fileupload_init():
 	try:
-		conf = yaml.load(open('credentials.yml'))
 		host = conf['user']['host']
 		port = conf['user']['port']
 		transport = paramiko.Transport((host, port))
@@ -399,7 +402,6 @@ def fileupload_init():
 # Stat file upload
 def fileupload_stats():
 	try:
-		conf = yaml.load(open('credentials.yml'))
 		host = conf['user']['host']
 		port = conf['user']['port']
 		transport = paramiko.Transport((host, port))
@@ -437,8 +439,6 @@ def fileupload_stats():
 
 def tweet():
 	try:
-		conf = yaml.load(open('credentials.yml'))
-
 		consumer_key = conf['twitter']['consumer_key']
 		consumer_secret = conf['twitter']['consumer_secret']
 		access_token = conf['twitter']['access_token']
@@ -448,7 +448,7 @@ def tweet():
 		auth.set_access_token(access_token, access_token_secret)
 		api = tweepy.API(auth)
 
-		api.update_status(status=tweetMessage)
+		api.update_status(status=tweetMessage + " " + lastWatered)
 		print("Tweet sent.")
 	except:
 		global ledSwitch
@@ -464,8 +464,6 @@ def tweet():
 
 def tweet_follow():
 	try:
-		conf = yaml.load(open('credentials.yml'))
-
 		consumer_key = conf['twitter']['consumer_key']
 		consumer_secret = conf['twitter']['consumer_secret']
 		access_token = conf['twitter']['access_token']
@@ -490,6 +488,21 @@ def tweet_follow():
 		internet_on()
 		pass
 
+# SMS
+
+def sms():
+	account_sid = conf["twilio"]["account_sid"]
+	auth_token = conf["twilio"]["auth_token"]
+
+	client = Client(account_sid, auth_token)
+
+	message = client.messages.create(
+		to= conf["twilio"]["to_phone_number"],
+		from_= conf["twilio"]["from_phone_number"],
+		body=tweetMessage + " " + lastWatered)
+
+	print(message.sid)
+
 #################### MAIN PROGRRAM #################################
 
 def Main():
@@ -512,6 +525,7 @@ def Main():
 			print("10. Logging and upload\n")
 			print("11. Upload init\n")
 			print("12. Tweet follow\n")
+			print("13. SMS\n")
 			val = input("\n>>> ")
 			if val == "1":
 				time.sleep(button_delay)
@@ -546,6 +560,8 @@ def Main():
 				fileupload_init()
 			if val =="12":
 				tweet_follow()
+			if val =="13":
+				sms()
 
 	finally:
 		print("GPIO Clean up")
