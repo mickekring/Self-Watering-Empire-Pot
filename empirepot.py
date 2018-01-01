@@ -103,12 +103,12 @@ def water_reading():
 	except:
 		os.system("mpg321 -q moisture.mp3")
 		pass
-	vattenbehov = 0
+	waterNeed = 0
 	GPIO.output(hygro_Power, True)
 	time.sleep(1)
 	for x in range(1,4):
-		vattenbehov += GPIO.input(hygro)
-		print(vattenbehov)
+		waterNeed += GPIO.input(hygro)
+		print(waterNeed)
 		try:
 			tts = gTTS(text="Test {0} of three.".format(x) , lang='en')
 			tts.save("test.mp3")
@@ -119,7 +119,7 @@ def water_reading():
 	GPIO.output(hygro_Power, False)
 	ledSwitch = 0
 	time.sleep(2)
-	if vattenbehov <= 1:
+	if waterNeed <= 1:
 		ledSwitch = 1
 		waterLevel = 0
 		Thread(target = led_green_alert).start()
@@ -133,7 +133,7 @@ def water_reading():
 			pass
 		logging()
 		ledSwitch = 0
-	if vattenbehov > 1:
+	if waterNeed > 1:
 		ledSwitch = 1
 		waterLevel = 50
 		lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
@@ -288,9 +288,8 @@ def led_rolling():
 def temp_humidity():
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	global tweetMessage
-	tweetMessage = "Plant Pot Stats: Temperature: {0:0.1f} C Humidity: {1:0.1f} %".format(temperature, humidity)
-	print("Tweeting: " + tweetMessage)
-	tweet()
+	tweetMessage = "Plant Pot Stats\nTime: {2}\nTemperature: {0:0.1f} C\nHumidity: {1:0.1f} %".format(temperature, humidity, strftime("%H:%M"))
+	#print(tweetMessage)
 
 # Logging of statistics
 def logging():
@@ -460,7 +459,8 @@ def tweet():
 		auth.set_access_token(access_token, access_token_secret)
 		api = tweepy.API(auth)
 
-		api.update_status(status=tweetMessage + " " + lastWatered)
+		img = "wateringplants.jpg"
+		api.update_with_media(img, status=tweetMessage + " " + lastWatered)
 		print("Tweet sent.")
 	except:
 		global ledSwitch
@@ -500,6 +500,52 @@ def tweet_follow():
 		internet_on()
 		pass
 
+def tweet_auto():
+	tweetID = 947891597160706050
+	tweetText = "ABC"
+
+	consumer_key = conf['twitter']['consumer_key']
+	consumer_secret = conf['twitter']['consumer_secret']
+	access_token = conf['twitter']['access_token']
+	access_token_secret = conf['twitter']['access_token_secret']
+
+	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+	auth.set_access_token(access_token, access_token_secret)
+	api = tweepy.API(auth)
+
+	while True:
+		tweetFetched = api.user_timeline(screen_name = "mickekring", count = 1)
+
+		for status in tweetFetched:
+			tweetTextFetched = (status.text)
+			tweetIDFetched = (status.id)
+
+			if tweetIDFetched == tweetID:
+				#print("\nNo new message has arrived.")
+				pass
+			else:
+				tweetID = tweetIDFetched
+				tweetText = tweetTextFetched
+				
+				if "@empireplantbot" in tweetText:
+					if "status" in tweetText:
+						temp_humidity()
+						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\nWatered: " + lastWatered), in_reply_to_status_id = (tweetIDFetched))
+					elif "who" and "are" in tweetText:
+						api.update_status(status = "I am an automated plant pot, @mickekring", in_reply_to_status_id = (tweetIDFetched))
+					elif "green" in tweetText:
+						led_green()
+						api.update_status(status = "The green lights are on now, @mickekring", in_reply_to_status_id = (tweetIDFetched))
+						time.sleep(5)
+						led_off()
+					else:
+						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
+				else:
+					pass
+
+
+		time.sleep(20)
+
 # SMS
 
 def sms():
@@ -511,7 +557,7 @@ def sms():
 	message = client.messages.create(
 		to= conf["twilio"]["to_phone_number"],
 		from_= conf["twilio"]["from_phone_number"],
-		body=tweetMessage + " " + lastWatered)
+		body=tweetMessage + "\n" + lastWatered + "\n🌱🌱🌱🌱🌱")
 
 	print(message.sid)
 
@@ -522,6 +568,7 @@ def Main():
 		button_delay = 0.2
 		led_off()
 		GPIO.output(hygro_Power, False)
+		temp_humidity()
 		while True:
 			print("\n--- TESTPROGRAM ---\n")
 			print("1. Alla lampor på\n")
@@ -537,6 +584,7 @@ def Main():
 			print("11. Upload init\n")
 			print("12. Tweet follow\n")
 			print("13. SMS\n")
+			print("14. Auto Tweet.\n")
 			val = input("\n>>> ")
 			if val == "1":
 				time.sleep(button_delay)
@@ -558,8 +606,8 @@ def Main():
 				internet_on()
 			if val =="8":
 				GPIO.output(hygro_Power, True)
-				vattenbehov = GPIO.input(hygro)
-				print(vattenbehov)
+				waterNeed = GPIO.input(hygro)
+				print(waterNeed)
 				print(lastWatered)
 			if val =="9":
 				GPIO.output(hygro_Power, False)
@@ -571,6 +619,8 @@ def Main():
 				tweet_follow()
 			if val =="13":
 				sms()
+			if val =="14":
+				Thread(target = tweet_auto).start()
 
 	finally:
 		print("GPIO Clean up")
