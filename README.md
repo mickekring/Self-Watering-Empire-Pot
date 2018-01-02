@@ -4,7 +4,7 @@ When the soil moisture levels are below a certain number a water pump will pump 
 So why "empire"? Well, I wanted to throw a bit of Star Wars at it. :)__
 
 ## Work in progress
-This project is a work in progress. Check updates for more information.
+This project is a work in progress and considered beta at the moment. Check updates for more information.
 
 ## Disclaimer
 My Python skills are at best on a beginners level so I'll gladly take any good advice.
@@ -16,7 +16,7 @@ Here you'll find short movies of the latest state of the project.<br /><br />
 ## Road map and goals
 This is sort of what I want out of the project. As I get new ideas, this will grow.
 - [x] gTTS - Google text to speech - The pot should be able to communicate through speech.
-- [ ] STT - Speech to text - preferably I'd like to speak to the pot (which is healthy for it as well) as my main input
+- [x] ~~STT - Speech to text - preferably I'd like to speak to the pot (which is healthy for it as well) as my main input~~ This will not be implemented, since I find it to unreliable and slow. Main means of communication will be trhough Twitter, where I can send commands.
 - [x] Temperature sensor - record temperature near the plant for statistics
 - [x] Humidity sensor - record humidity near the plant for statistics
 - [x] Soil moisture sensor - to sense whether the plant needs water or not
@@ -28,15 +28,17 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [x] Send logs to a web server via SFTP and serve graph charts
 - [x] Relay - Control water pump
 - [ ] Camera - It would be cool if I could hook up a camera and use it to take a snap now and again, which will be sent to a web server
-- [ ] Design and build casings and pots using 3D-software and printing - I'm designing it by using modules. A pot module, speaker/light module, water tank and so on.
+- [x] Design and build casings and pots using 3D-software and printing - I'm designing it by using modules. A pot module, speaker/light module, water tank and so on.
 - [x] Design and solder some simple circuit boards - Must learn to solder
-- [ ] Send warnings and status via e-mail or sms or slack or...
+- [x] ~~Send warnings and status via e-mail or sms or slack or...~~ It will be communicating via SMS and Twitter.
 - [x] Twitter - The pot should be able to tweet. It's twitter account is @empireplantbot
 - [x] Fail safes - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
 - [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
 - [x] Glue gun - Glue the s--t out of everything
 
 ## Updates
+* __01 jan 2018 - SMS and more Twitter__<br />
+The program can now accept commands via Twitter, from users who are entrusted. It will be one of the main forms of interactions with the program. It can now send SMS. 
 * __29 dec 2017 - Twitter capabilities__<br />
 The program is now able to tweet, using Tweepy within Python. A function is setup and it's tweeting whatever is stored in the variable tweetMessage.
 * __29 dec 2017 - Initial upload__<br />
