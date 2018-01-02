@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import time, random, math, threading, datetime, locale, os, sys, Adafruit_DHT, urllib, yaml, paramiko, tweepy
+import time, random, math, threading, datetime, locale, os, sys, Adafruit_DHT, urllib, yaml, paramiko, tweepy, requests
 from gtts import gTTS
 from gpiozero import CPUTemperature
 from time import strftime
@@ -287,13 +287,20 @@ def led_rolling():
 # Temp and humidity
 def temp_humidity():
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
+	r = requests.get(conf['openweather']['api'])
+	json_object = r.json()
+	temp_k = json_object["main"]["temp"]
+	temp_c = (temp_k - 273.15)
+	o_humidity = json_object["main"]["humidity"]
+	w_text = json_object["weather"][0]["main"]
+	w_desc = json_object["weather"][0]["description"]
+	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	global tweetMessage
-	tweetMessage = "Plant Pot Stats\nTime: {2}\nTemperature: {0:0.1f} C\nHumidity: {1:0.1f} %".format(temperature, humidity, strftime("%H:%M"))
+	tweetMessage = "Plant Pot Stats\n\nCity: Stockholm, SWE\nTime: {2}\n\nIndoors temp: {0:0.0f}°C\nIndoors humidity: {1:0.0f}%\n\nOutside temp: {3:0.0f}°C\nOutside humidity: {4}%\nOutside weather: {5} | {6}".format(temperature, humidity, strftime("%H:%M"), temp_c, o_humidity, w_text, w_desc)
 	#print(tweetMessage)
 
 # Logging of statistics
 def logging():
-	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	print("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
 	with open("stats.csv", "a") as log:
 		log.write("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
@@ -525,12 +532,12 @@ def tweet_auto():
 				pass
 			else:
 				tweetID = tweetIDFetched
-				tweetText = tweetTextFetched
+				tweetText = tweetTextFetched.lower()
 				
 				if "@empireplantbot" in tweetText:
 					if "status" in tweetText:
 						temp_humidity()
-						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\nWatered: " + lastWatered), in_reply_to_status_id = (tweetIDFetched))
+						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\nWatering system: " + lastWatered), in_reply_to_status_id = (tweetIDFetched))
 					elif "who" and "are" in tweetText:
 						api.update_status(status = "I am an automated plant pot, @mickekring", in_reply_to_status_id = (tweetIDFetched))
 					elif "green" in tweetText:
