@@ -35,8 +35,11 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [x] Fail safes - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
 - [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
 - [x] Glue gun - Glue the s--t out of everything
+- [x] Get weather data from openweathermap.org to display and log. Could be interesting to see how much outside temperatures affects the amount of watering needed.
 
 ## Updates
+* __02 jan 2018 - Added weather data from openweathermap.org__<br/>
+Outside temperature, humidity and weather conditions are now a part of the program.
 * __01 jan 2018 - SMS and more Twitter__<br />
 The program can now accept commands via Twitter, from users who are entrusted. It will be one of the main forms of interactions with the program. It can now send SMS. 
 * __29 dec 2017 - Twitter capabilities__<br />
