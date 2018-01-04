@@ -301,6 +301,7 @@ def temp_humidity():
 
 # Logging of statistics
 def logging():
+	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	print("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
 	with open("stats.csv", "a") as log:
 		log.write("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
