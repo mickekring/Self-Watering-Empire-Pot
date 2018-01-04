@@ -11,7 +11,7 @@ My Python skills are at best on a beginners level so I'll gladly take any good a
 
 ## Where I'm at - at the moment
 Here you'll find short movies of the latest state of the project.<br /><br />
-[![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/2017-12-29.jpg "Latest state")](https://vimeo.com/249059304/2b951d0b1a)
+[![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/2018-01-04.jpg "Latest state")](https://vimeo.com/249696012)
 
 ## Road map and goals
 This is sort of what I want out of the project. As I get new ideas, this will grow.
