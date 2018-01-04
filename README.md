@@ -39,6 +39,8 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [ ] Message me when the water tank needs refill. Now, the pump is on for 3 seconds. That's enough for 10 waterings.
 
 ## Updates
+* __04 jan 2018 - v1.0 - Up and running__</br>
+Everyting is running by itself and it responds to tweets, sens SMS if water tank levels are getting low... and most important of all, it waters the plant if the soil is too dry.
 * __02 jan 2018 - Added weather data from openweathermap.org__<br/>
 Outside temperature, humidity and weather conditions are now a part of the program.
 * __01 jan 2018 - SMS and more Twitter__<br />
