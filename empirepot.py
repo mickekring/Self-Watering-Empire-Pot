@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import time, random, math, threading, datetime, locale, os, sys, Adafruit_DHT, urllib, yaml, paramiko, tweepy, requests
+import time, random, math, threading, datetime, locale, os, sys, Adafruit_DHT, urllib, yaml, paramiko, tweepy, requests, alsaaudio
 from gtts import gTTS
 from gpiozero import CPUTemperature
 from time import strftime
@@ -89,101 +89,6 @@ def water_pump():
 	time.sleep(3)
 	print("Relay off")
 	GPIO.output(relay, False)
-
-# Main water pump system function
-def water_reading():
-	led_off()
-	global ledSwitch
-	ledSwitch = 1
-	global waterLevel
-	waterLevel = 0
-	global lastWatered
-	global tankFull
-	Thread(target = led_rolling).start()
-	try:
-		print("Alert! Soil moisture levels will be tested in T minus two seconds.")
-		tts = gTTS(text="Alert! Soil moisture levels will be tested in T minus two seconds." , lang='en')
-		tts.save("moisture.mp3")
-		os.system("mpg321 -q moisture.mp3")
-	except:
-		os.system("mpg321 -q moisture.mp3")
-		pass
-	waterNeed = 0
-	GPIO.output(hygro_Power, True)
-	time.sleep(1)
-	for x in range(1,4):
-		waterNeed += GPIO.input(hygro)
-		print(waterNeed)
-		try:
-			tts = gTTS(text="Test {0} of three.".format(x) , lang='en')
-			tts.save("test.mp3")
-			os.system("mpg321 -q test.mp3")
-		except:
-			pass
-		time.sleep(2)
-	GPIO.output(hygro_Power, False)
-	ledSwitch = 0
-	time.sleep(2)
-	if waterNeed <= 1:
-		ledSwitch = 1
-		waterLevel = 0
-		Thread(target = led_green_alert).start()
-		try:
-			print("Code green. We have a code green. All systems stabilized and functioning within normal parameters.")
-			tts = gTTS(text="Code green. We have a code green. All systems stabilized and functioning within normal parameters." , lang='en')
-			tts.save("green.mp3")
-			os.system("mpg321 -q green.mp3")
-		except:
-			os.system("mpg321 -q green.mp3")
-			pass
-		logging()
-		ledSwitch = 0
-	if waterNeed > 1:
-		ledSwitch = 1
-		waterLevel = 50
-		Thread(target = led_red_alert).start()
-		try:
-			print("Code red. We have a code red. Watering protocols will now engage.")
-			tts = gTTS(text="Code red. We have a code red. Watering protocols will now engage." , lang='en')
-			tts.save("red.mp3")
-			os.system("mpg321 -q red.mp3")
-		except:
-			os.system("mpg321 -q red.mp3")
-			pass
-		time.sleep(1)
-		try:
-			print("Alert! Water pump engaging.")
-			tts = gTTS(text="Alert! Water pump engaging." , lang='en')
-			tts.save("water.mp3")
-			os.system("mpg321 -q water.mp3")
-		except:
-			os.system("mpg321 -q water.mp3")
-			pass
-		water_pump()
-		tankFull -= 1
-		if tankFull < 9:
-			sms_tank_warning()
-		else:
-			pass
-		lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
-		f = open('lastwatered.txt', 'w')
-		f.write(lastWatered)
-		f.close()
-		time.sleep(10)
-		logging()
-		try:
-			print("Moisture levels will now be re-tested by secondary systems.")
-			tts = gTTS(text="Moisture levels will now be re-tested by secondary systems." , lang='en')
-			tts.save("retest.mp3")
-			os.system("mpg321 -q retest.mp3")
-		except:
-			os.system("mpg321 -q retest.mp3")
-			pass
-		ledSwitch = 0
-		time.sleep(2)
-		water_reading()
-	time.sleep(1)
-	led_off()
 
 # LED lights
 def led_all_on():
@@ -297,6 +202,100 @@ def led_rolling():
 	except KeyboardInterrupt:
 		led_off()
 
+# Main water pump system function
+def water_reading():
+	led_off()
+	global ledSwitch
+	ledSwitch = 1
+	global waterLevel
+	waterLevel = 0
+	global lastWatered
+	global tankFull
+	Thread(target = led_rolling).start()
+	try:
+		print("Alert! Soil moisture levels will be tested in T minus two seconds.")
+		tts = gTTS(text="Alert! Soil moisture levels will be tested in T minus two seconds." , lang='en')
+		tts.save("moisture.mp3")
+		os.system("mpg321 -q moisture.mp3")
+	except:
+		os.system("mpg321 -q moisture.mp3")
+		pass
+	GPIO.output(hygro_Power, True)
+	time.sleep(1)
+	waterNeed = 0
+	for x in range(1,4):
+		waterNeed += GPIO.input(hygro)
+		try:
+			tts = gTTS(text="Test {0} of three.".format(x) , lang='en')
+			tts.save("test.mp3")
+			os.system("mpg321 -q test.mp3")
+		except:
+			pass
+		time.sleep(2)
+	GPIO.output(hygro_Power, False)
+	ledSwitch = 0
+	time.sleep(2)
+	if waterNeed <= 1:
+		ledSwitch = 1
+		waterLevel = 0
+		Thread(target = led_green_alert).start()
+		try:
+			print("Code green. We have a code green. All systems stabilized and functioning within normal parameters.")
+			tts = gTTS(text="Code green. We have a code green. All systems stabilized and functioning within normal parameters." , lang='en')
+			tts.save("green.mp3")
+			os.system("mpg321 -q green.mp3")
+		except:
+			os.system("mpg321 -q green.mp3")
+			pass
+		logging()
+		ledSwitch = 0
+	if waterNeed > 1:
+		ledSwitch = 1
+		waterLevel = 100
+		Thread(target = led_red_alert).start()
+		try:
+			print("Code red. We have a code red. Watering protocols will now engage.")
+			tts = gTTS(text="Code red. We have a code red. Watering protocols will now engage." , lang='en')
+			tts.save("red.mp3")
+			os.system("mpg321 -q red.mp3")
+		except:
+			os.system("mpg321 -q red.mp3")
+			pass
+		time.sleep(1)
+		try:
+			print("Alert! Water pump engaging.")
+			tts = gTTS(text="Alert! Water pump engaging." , lang='en')
+			tts.save("water.mp3")
+			os.system("mpg321 -q water.mp3")
+		except:
+			os.system("mpg321 -q water.mp3")
+			pass
+		water_pump()
+		tankFull -= 1
+		if tankFull < 3:
+			sms_tank_warning()
+		else:
+			pass
+		lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
+		f = open('lastwatered.txt', 'w')
+		f.write(lastWatered)
+		f.close()
+		time.sleep(10)
+		logging()
+		try:
+			print("Moisture levels will now be re-tested by secondary systems.")
+			tts = gTTS(text="Moisture levels will now be re-tested by secondary systems." , lang='en')
+			tts.save("retest.mp3")
+			os.system("mpg321 -q retest.mp3")
+		except:
+			os.system("mpg321 -q retest.mp3")
+			pass
+		ledSwitch = 0
+		time.sleep(2)
+		water_reading()
+	time.sleep(1)
+	led_off()
+
 # Temp and humidity
 def temp_humidity():
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
@@ -319,9 +318,6 @@ def logging():
 	temp_k = json_object["main"]["temp"]
 	temp_c = (temp_k - 273.15)
 	o_humidity = json_object["main"]["humidity"]
-	#w_text = json_object["weather"][0]["main"]
-	#w_desc = json_object["weather"][0]["description"]
-	#print("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
 	with open("stats.csv", "a") as log:
 		log.write("\n{0},{1},{2},{3},{4},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel), str(temp_c), str(o_humidity)))
 	fileupload_stats()
@@ -572,11 +568,20 @@ def tweet_auto():
 					elif "refill" in tweetText:
 						tankFull = 10
 						api.update_status(status = "Water levels are now at full again, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
+					elif "silence" in tweetText:
+						audio_vol_none()
+						api.update_status(status = "I've set speaker volume to 0%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
+					elif "loud" in tweetText:
+						audio_vol_full()
+						api.update_status(status = "I've set speaker volume to 100%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 					else:
 						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 				else:
 					pass
 
+				tts = gTTS(text="Incoming Tweet. Message recieved. {0}".format(tweetTextFetched) , lang='en')
+				tts.save("incoming_tweet.mp3")
+				os.system("mpg321 -q incoming_tweet.mp3")
 
 		time.sleep(20)
 
@@ -608,6 +613,16 @@ def sms_tank_warning():
 
 	print(message.sid)
 
+def audio_vol_full():
+	m = alsaaudio.Mixer("PCM")
+	current_volume = m.getvolume()
+	m.setvolume(80)
+
+def audio_vol_none():
+	m = alsaaudio.Mixer("PCM")
+	current_volume = m.getvolume()
+	m.setvolume(0)
+
 #################### MAIN PROGRRAM #################################
 
 def Main():
@@ -616,15 +631,16 @@ def Main():
 		button_delay = 0.2
 		led_off()
 		GPIO.output(hygro_Power, False)
+		audio_vol_full()
+		self_diagnostics()
 		temp_humidity()
 		Thread(target = tweet_auto).start()
 		fileupload_init()
 		
 		while True:
 			tweet_follow()
-			logging()
-			time.sleep(30)
-			#water_reading()
+			water_reading()
+			time.sleep(3600)
 
 
 	finally:
