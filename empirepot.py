@@ -71,7 +71,11 @@ cpu = CPUTemperature()
 pause_time = 0.001
 ledSwitch = 0
 waterLevel = 0
-lastWatered = "No watering since reboot of system core."
+tankFull = 10
+
+f = open('lastwatered.txt','r')
+lastWatered = (f.read())
+f.close()
 
 # Loading credentials
 conf = yaml.load(open("credentials.yml"))
@@ -94,6 +98,7 @@ def water_reading():
 	global waterLevel
 	waterLevel = 0
 	global lastWatered
+	global tankFull
 	Thread(target = led_rolling).start()
 	try:
 		print("Alert! Soil moisture levels will be tested in T minus two seconds.")
@@ -136,7 +141,6 @@ def water_reading():
 	if waterNeed > 1:
 		ledSwitch = 1
 		waterLevel = 50
-		lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
 		Thread(target = led_red_alert).start()
 		try:
 			print("Code red. We have a code red. Watering protocols will now engage.")
@@ -156,6 +160,15 @@ def water_reading():
 			os.system("mpg321 -q water.mp3")
 			pass
 		water_pump()
+		tankFull -= 1
+		if tankFull < 9:
+			sms_tank_warning()
+		else:
+			pass
+		lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
+		f = open('lastwatered.txt', 'w')
+		f.write(lastWatered)
+		f.close()
 		time.sleep(10)
 		logging()
 		try:
@@ -294,7 +307,6 @@ def temp_humidity():
 	o_humidity = json_object["main"]["humidity"]
 	w_text = json_object["weather"][0]["main"]
 	w_desc = json_object["weather"][0]["description"]
-	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	global tweetMessage
 	tweetMessage = "Plant Pot Stats\n\nCity: Stockholm, SWE\nTime: {2}\n\nIndoors temp: {0:0.0f}°C\nIndoors humidity: {1:0.0f}%\n\nOutside temp: {3:0.0f}°C\nOutside humidity: {4}%\nOutside weather: {5} | {6}".format(temperature, humidity, strftime("%H:%M"), temp_c, o_humidity, w_text, w_desc)
 	#print(tweetMessage)
@@ -302,9 +314,16 @@ def temp_humidity():
 # Logging of statistics
 def logging():
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
-	print("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
+	r = requests.get(conf['openweather']['api'])
+	json_object = r.json()
+	temp_k = json_object["main"]["temp"]
+	temp_c = (temp_k - 273.15)
+	o_humidity = json_object["main"]["humidity"]
+	#w_text = json_object["weather"][0]["main"]
+	#w_desc = json_object["weather"][0]["description"]
+	#print("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
 	with open("stats.csv", "a") as log:
-		log.write("\n{0},{1},{2},{3}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel)))
+		log.write("\n{0},{1},{2},{3},{4},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel), str(temp_c), str(o_humidity)))
 	fileupload_stats()
 
 # Status update with diagnostics
@@ -509,8 +528,10 @@ def tweet_follow():
 		pass
 
 def tweet_auto():
-	tweetID = 947891597160706050
-	tweetText = "ABC"
+	global tankFull
+	f = open('tweetid.txt','r')
+	tweetID = (f.read())
+	f.close()
 
 	consumer_key = conf['twitter']['consumer_key']
 	consumer_secret = conf['twitter']['consumer_secret']
@@ -526,19 +547,21 @@ def tweet_auto():
 
 		for status in tweetFetched:
 			tweetTextFetched = (status.text)
-			tweetIDFetched = (status.id)
+			tweetIDFetched = str(status.id)
 
 			if tweetIDFetched == tweetID:
-				#print("\nNo new message has arrived.")
 				pass
 			else:
 				tweetID = tweetIDFetched
+				f = open('tweetid.txt', 'w')
+				f.write(str(tweetID))
+				f.close()
 				tweetText = tweetTextFetched.lower()
 				
 				if "@empireplantbot" in tweetText:
 					if "status" in tweetText:
 						temp_humidity()
-						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\nWatering system: " + lastWatered), in_reply_to_status_id = (tweetIDFetched))
+						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\n" + lastWatered), in_reply_to_status_id = (tweetIDFetched))
 					elif "who" and "are" in tweetText:
 						api.update_status(status = "I am an automated plant pot, @mickekring", in_reply_to_status_id = (tweetIDFetched))
 					elif "green" in tweetText:
@@ -546,6 +569,9 @@ def tweet_auto():
 						api.update_status(status = "The green lights are on now, @mickekring", in_reply_to_status_id = (tweetIDFetched))
 						time.sleep(5)
 						led_off()
+					elif "refill" in tweetText:
+						tankFull = 10
+						api.update_status(status = "Water levels are now at full again, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 					else:
 						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 				else:
@@ -569,66 +595,37 @@ def sms():
 
 	print(message.sid)
 
+def sms_tank_warning():
+	account_sid = conf["twilio"]["account_sid"]
+	auth_token = conf["twilio"]["auth_token"]
+
+	client = Client(account_sid, auth_token)
+
+	message = client.messages.create(
+		to= conf["twilio"]["to_phone_number"],
+		from_= conf["twilio"]["from_phone_number"],
+		body="Alert! You need to refill the water tank. Only " + str(tankFull) + " times left.\n\n" + lastWatered + "")
+
+	print(message.sid)
+
 #################### MAIN PROGRRAM #################################
 
 def Main():
 	try:
+		print("---SYSTEM START UP---")
 		button_delay = 0.2
 		led_off()
 		GPIO.output(hygro_Power, False)
 		temp_humidity()
+		Thread(target = tweet_auto).start()
+		fileupload_init()
+		
 		while True:
-			print("\n--- TESTPROGRAM ---\n")
-			print("1. Alla lampor på\n")
-			print("2. Alla lampor av\n")
-			print("3. Fuktmätning\n")
-			print("4. Relay Test\n")
-			print("5. Status\n")
-			print("6. Temp Moisture\n")
-			print("7. Internet Connection\n")
-			print("8. Hygro on\n")
-			print("9. Hygro off\n")
-			print("10. Logging and upload\n")
-			print("11. Upload init\n")
-			print("12. Tweet follow\n")
-			print("13. SMS\n")
-			print("14. Auto Tweet.\n")
-			val = input("\n>>> ")
-			if val == "1":
-				time.sleep(button_delay)
-				print("\n### ALLA LAMPOR PÅ###\n")
-				led_all_on()
-			if val == "2":
-				time.sleep(button_delay)
-				print("\n### ALLA LAMPOR AV ###\n")
-				led_off()
-			if val == "3":
-				water_reading()
-			if val == "4":
-				water_pump()
-			if val == "5":
-				self_diagnostics()
-			if val == "6":
-				temp_humidity()
-			if val =="7":
-				internet_on()
-			if val =="8":
-				GPIO.output(hygro_Power, True)
-				waterNeed = GPIO.input(hygro)
-				print(waterNeed)
-				print(lastWatered)
-			if val =="9":
-				GPIO.output(hygro_Power, False)
-			if val =="10":
-				logging()
-			if val =="11":
-				fileupload_init()
-			if val =="12":
-				tweet_follow()
-			if val =="13":
-				sms()
-			if val =="14":
-				Thread(target = tweet_auto).start()
+			tweet_follow()
+			logging()
+			time.sleep(30)
+			#water_reading()
+
 
 	finally:
 		print("GPIO Clean up")
