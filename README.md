@@ -65,8 +65,9 @@ Here you can find links to the 3D parts that I've designed in TinkerCAD. They ar
 
 * Flower pot module - https://www.tinkercad.com/things/fQOVuEjylp8
 * Speaker module - https://www.tinkercad.com/things/66gCLMuzKD2
-* Speaker top module - https://www.tinkercad.com/things/8jMyELo6IXI
+* Speaker top - https://www.tinkercad.com/things/8jMyELo6IXI
 * Water tank module - https://www.tinkercad.com/things/9iR5u62zSzV
+* Water tank top - https://www.tinkercad.com/things/jUjSysWbdVi
 <br /><br />
 * Empire logo - This one is not designed by me. I found it on Thingiverse by newayb - https://www.thingiverse.com/thing:590307
 
