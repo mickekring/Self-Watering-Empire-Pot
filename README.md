@@ -36,6 +36,7 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
 - [x] Glue gun - Glue the s--t out of everything
 - [x] Get weather data from openweathermap.org to display and log. Could be interesting to see how much outside temperatures affects the amount of watering needed.
+- [ ] Message me when the water tank needs refill. Now, the pump is on for 3 seconds. That's enough for 10 waterings.
 
 ## Updates
 * __02 jan 2018 - Added weather data from openweathermap.org__<br/>
