@@ -27,7 +27,7 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [x] Log sensory inputs in a csv-file
 - [x] Send logs to a web server via SFTP and serve graph charts
 - [x] Relay - Control water pump
-- [ ] Camera - It would be cool if I could hook up a camera and use it to take a snap now and again, which will be sent to a web server
+- [x] ~~Camera - It would be cool if I could hook up a camera and use it to take a snap now and again, which will be sent to a web server~~This will not be implemented, since I think it would be kind of useless after a while. 
 - [x] Design and build casings and pots using 3D-software and printing - I'm designing it by using modules. A pot module, speaker/light module, water tank and so on.
 - [x] Design and solder some simple circuit boards - Must learn to solder
 - [x] ~~Send warnings and status via e-mail or sms or slack or...~~ It will be communicating via SMS and Twitter.
@@ -36,11 +36,13 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
 - [x] Glue gun - Glue the s--t out of everything
 - [x] Get weather data from openweathermap.org to display and log. Could be interesting to see how much outside temperatures affects the amount of watering needed.
-- [ ] Message me when the water tank needs refill. Now, the pump is on for 3 seconds. That's enough for 10 waterings.
+- [x] Message me when the water tank needs refill. Now, the pump is on for 3 seconds. That's enough for 10 waterings.
 
 ## Updates
+* __06 jan 20180 - v1.1 - Error logging__<br />
+Added some error logging to external file for easier debugging. Test running the program for longer periods of time now, for bug finding. 
 * __04 jan 2018 - v1.0 - Up and running__</br>
-Everyting is running by itself and it responds to tweets, sens SMS if water tank levels are getting low... and most important of all, it waters the plant if the soil is too dry.
+Everyting is running by itself and it responds to tweets, sends SMS if water tank levels are getting low... and most important of all, it waters the plant if the soil is too dry.
 * __02 jan 2018 - Added weather data from openweathermap.org__<br/>
 Outside temperature, humidity and weather conditions are now a part of the program.
 * __01 jan 2018 - SMS and more Twitter__<br />
@@ -91,6 +93,9 @@ The speaker module contains a small speaker and an amplifier (the red little boa
 
 ## Pot module
 There's not really that much to say about this module, more than that this is where the plant resides.
+
+## Water tank module
+More info will be added. At the bottom if the tank I've glued down the water pump. 
 
 ## History and ideas
 ![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/fortproj2-2.jpg "Sketch")
