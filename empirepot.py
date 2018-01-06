@@ -87,7 +87,7 @@ conf = yaml.load(open("credentials.yml"))
 def led_all_on():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: All leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,All leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	blue_one.ChangeDutyCycle(10)
 	blue_two.ChangeDutyCycle(10)
 	blue_three.ChangeDutyCycle(10)
@@ -99,28 +99,28 @@ def led_all_on():
 def led_red():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Red leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Red leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	red_one.ChangeDutyCycle(100)
 	red_two.ChangeDutyCycle(100)
 
 def led_green():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Green leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Green leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	green_one.ChangeDutyCycle(100)
 	green_two.ChangeDutyCycle(100)
 
 def led_blue():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Blue leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Blue leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	blue_one.ChangeDutyCycle(100)
 	blue_two.ChangeDutyCycle(100)
 	blue_three.ChangeDutyCycle(100)
 
 def led_off():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: All leds off.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,All leds off.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	blue_one.ChangeDutyCycle(0)
 	blue_two.ChangeDutyCycle(0)
 	blue_three.ChangeDutyCycle(0)
@@ -132,7 +132,7 @@ def led_off():
 def led_red_alert():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Rolling red alert leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Rolling red alert leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	try:
 		while True:
 			if ledSwitch == 1:
@@ -157,7 +157,7 @@ def led_red_alert():
 def led_green_alert():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Rolling green alert leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Rolling green alert leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	try:
 		while True:
 			if ledSwitch == 1:
@@ -184,7 +184,7 @@ def led_green_alert():
 def led_rolling():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Rolling blue alert leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Rolling blue alert leds on.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	try:
 		while True:
 			if ledSwitch == 1:
@@ -216,11 +216,11 @@ def led_rolling():
 
 def water_pump():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Relay on".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Relay on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	GPIO.output(relay, True)
 	time.sleep(3)
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Relay off".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Relay off".format(strftime("%Y-%m-%d %H:%M:%S")))
 	GPIO.output(relay, False)
 
 ### Main water pump system function #############
@@ -228,7 +228,7 @@ def water_pump():
 def water_reading():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Water reading started.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Water reading started.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	global ledSwitch
 	ledSwitch = 1
 	global waterLevel
@@ -238,7 +238,7 @@ def water_reading():
 	Thread(target = led_rolling).start()
 	try:
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Log: Alert! Soil moisture levels will be tested in T minus two seconds.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Log,Alert! Soil moisture levels will be tested".format(strftime("%Y-%m-%d %H:%M:%S")))
 		tts = gTTS(text="Alert! Soil moisture levels will be tested in T minus two seconds." , lang='en')
 		tts.save("moisture.mp3")
 		os.system("mpg321 -q moisture.mp3")
@@ -266,7 +266,7 @@ def water_reading():
 		Thread(target = led_green_alert).start()
 		try:
 			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0} Log: Code green. All systems stabilized and functioning within normal parameters.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				error_log.write("\n{0},Log,Code green. Moisture levels are okey.".format(strftime("%Y-%m-%d %H:%M:%S")))
 			tts = gTTS(text="Code green. We have a code green. Moisture levels are okey. All systems stabilized and functioning within normal parameters." , lang='en')
 			tts.save("green.mp3")
 			os.system("mpg321 -q green.mp3")
@@ -281,7 +281,7 @@ def water_reading():
 		Thread(target = led_red_alert).start()
 		try:
 			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0} Alert: Code red. We have a code red. Watering protocols will now engage.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				error_log.write("\n{0},Alert,Code red. Watering protocols will now engage.".format(strftime("%Y-%m-%d %H:%M:%S")))
 			tts = gTTS(text="Code red. We have a code red. Watering protocols will now engage." , lang='en')
 			tts.save("red.mp3")
 			os.system("mpg321 -q red.mp3")
@@ -291,7 +291,7 @@ def water_reading():
 		time.sleep(1)
 		try:
 			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0} Alert: Alert! Water pump engaging.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				error_log.write("\n{0},Alert,Water pump engaging.".format(strftime("%Y-%m-%d %H:%M:%S")))
 			tts = gTTS(text="Alert! Water pump engaging." , lang='en')
 			tts.save("water.mp3")
 			os.system("mpg321 -q water.mp3")
@@ -312,7 +312,7 @@ def water_reading():
 		logging()
 		try:
 			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0} Log: Moisture levels will now be re-tested by secondary systems.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				error_log.write("\n{0},Log,Moisture levels will now be re-tested by secondary systems.".format(strftime("%Y-%m-%d %H:%M:%S")))
 			tts = gTTS(text="Moisture levels will now be re-tested by secondary systems." , lang='en')
 			tts.save("retest.mp3")
 			os.system("mpg321 -q retest.mp3")
@@ -329,7 +329,7 @@ def water_reading():
 
 def temp_humidity():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Reading temp and humidity.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Reading temp and humidity.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	r = requests.get(conf['openweather']['api'])
 	json_object = r.json()
@@ -346,7 +346,7 @@ def temp_humidity():
 
 def logging():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Gathering stats for logging.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Gathering stats for logging.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	r = requests.get(conf['openweather']['api'])
 	json_object = r.json()
@@ -354,7 +354,7 @@ def logging():
 	temp_c = (temp_k - 273.15)
 	o_humidity = json_object["main"]["humidity"]
 	with open("stats.csv", "a") as log:
-		log.write("\n{0},{1},{2},{3},{4},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel), str(temp_c), str(o_humidity)))
+		log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel), (temp_c), str(o_humidity)))
 	fileupload_stats()
 
 ### Status update with diagnostics
@@ -363,7 +363,7 @@ def self_diagnostics():
 	led_off()
 	try:
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Log: Diagnostics start up sequence. Checking ligths.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Log,Diagnostics start up sequence. Checking ligths.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		tts = gTTS(text="Diagnostics start up sequence. Checking ligths." , lang='en')
 		tts.save("diagnostics_lights.mp3")
 		os.system("mpg321 -q diagnostics_lights.mp3")
@@ -405,13 +405,13 @@ def self_diagnostics():
 
 def internet_on():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Testing Internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Testing Internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	global ledSwitch
 	try:
 		urllib.request.urlopen('http://www.google.com')
 	except:
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Error: No internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Error,No internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		ledSwitch = 1
 		Thread(target = led_red_alert).start()
 		try:
@@ -425,7 +425,7 @@ def internet_on():
 		pass
 	else:
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Log: We have an internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Log,We have an internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		ledSwitch = 1
 		Thread(target = led_green_alert).start()
 		try:
@@ -443,7 +443,7 @@ def internet_on():
 
 def fileupload_init():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: uploading initial files.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,uploading initial files.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	host = conf['user']['host']
 	port = conf['user']['port']
 	transport = paramiko.Transport((host, port))
@@ -466,11 +466,11 @@ def fileupload_init():
 		sftp.close()
 		transport.close()
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Log: Init files have been uploaded.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Log,Init files have been uploaded.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	except:
 		global ledSwitch
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Error: Warning. Initial files error uploading.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Error,Warning. Initial files error uploading.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		ledSwitch = 1
 		Thread(target = led_red_alert).start()
 		tts = gTTS(text="Warning. Initial files error uploading." , lang='en')
@@ -485,7 +485,7 @@ def fileupload_init():
 
 def fileupload_stats():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Uploading stats.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Uploading stats.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	host = conf['user']['host']
 	port = conf['user']['port']
 	transport = paramiko.Transport((host, port))
@@ -505,11 +505,11 @@ def fileupload_stats():
 		sftp.close()
 		transport.close()
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Log: Stat file has been uploaded".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Log,Stat file has been uploaded".format(strftime("%Y-%m-%d %H:%M:%S")))
 	except:
 		global ledSwitch
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Error: Warning. Stat file error uploading".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Error,Warning. Stat file error uploading".format(strftime("%Y-%m-%d %H:%M:%S")))
 		ledSwitch = 1
 		Thread(target = led_red_alert).start()
 		tts = gTTS(text="Warning. Stat file error uploading." , lang='en')
@@ -560,11 +560,11 @@ def tweet_follow():
 		for follower in tweepy.Cursor(api.followers).items():
 			follower.follow()
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Log: Twitter followers followed.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Log,Twitter followers followed.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	except:
 		global ledSwitch
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0} Error: Warning. Twitter error. Unable to follow twitter users.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Error,Warning. Twitter error. Unable to follow twitter users.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		ledSwitch = 1
 		Thread(target = led_red_alert).start()
 		tts = gTTS(text="Warning. Twitter error. Unable to follow twitter users." , lang='en')
@@ -607,26 +607,38 @@ def tweet_auto():
 				
 				if "@empireplantbot" in tweetText:
 					with open("error_log.csv", "a") as error_log:
-						error_log.write("\n{0} Alert: Twitter message recieved.".format(strftime("%Y-%m-%d %H:%M:%S")))
+						error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					if "status" in tweetText:
 						temp_humidity()
 						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\n" + lastWatered), in_reply_to_status_id = (tweetIDFetched))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					elif "who" and "are" in tweetText:
 						api.update_status(status = "I am an automated plant pot, @mickekring", in_reply_to_status_id = (tweetIDFetched))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					elif "green" in tweetText:
 						led_green()
 						api.update_status(status = "The green lights are on now, @mickekring", in_reply_to_status_id = (tweetIDFetched))
 						time.sleep(5)
 						led_off()
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					elif "refill" in tweetText:
 						tankFull = 10
 						api.update_status(status = "Water levels are now at full again, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					elif "silence" in tweetText:
 						audio_vol_none()
 						api.update_status(status = "I've set speaker volume to 0%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					elif "loud" in tweetText:
 						audio_vol_full()
 						api.update_status(status = "I've set speaker volume to 100%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					else:
 						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 				else:
@@ -642,7 +654,7 @@ def tweet_auto():
 
 def sms():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Sending status SMS.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Sending status SMS.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	account_sid = conf["twilio"]["account_sid"]
 	auth_token = conf["twilio"]["auth_token"]
 	client = Client(account_sid, auth_token)
@@ -657,7 +669,7 @@ def sms():
 
 def sms_tank_warning():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Alert: Sending tank warning SMS.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Alert,Sending tank warning SMS.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	account_sid = conf["twilio"]["account_sid"]
 	auth_token = conf["twilio"]["auth_token"]
 	client = Client(account_sid, auth_token)
@@ -673,14 +685,14 @@ def sms_tank_warning():
 
 def audio_vol_full():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Setting audio to 100%.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Setting audio to 100%.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	m = alsaaudio.Mixer("PCM")
 	current_volume = m.getvolume()
-	m.setvolume(30)
+	m.setvolume(90)
 
 def audio_vol_none():
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Setting audio to 0%".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Setting audio to 0%".format(strftime("%Y-%m-%d %H:%M:%S")))
 	m = alsaaudio.Mixer("PCM")
 	current_volume = m.getvolume()
 	m.setvolume(0)
@@ -702,7 +714,7 @@ def Main():
 		while True:
 			tweet_follow()
 			water_reading()
-			time.sleep(600)
+			time.sleep(1800)
 
 
 	finally:
