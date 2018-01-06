@@ -266,8 +266,8 @@ def water_reading():
 		Thread(target = led_green_alert).start()
 		try:
 			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0},Log,Code green. Moisture levels are okey.".format(strftime("%Y-%m-%d %H:%M:%S")))
-			tts = gTTS(text="Code green. We have a code green. Moisture levels are okey. All systems stabilized and functioning within normal parameters." , lang='en')
+				error_log.write("\n{0},Log,Code green. Moisture levels are green.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			tts = gTTS(text="Code green. Moisture levels are acceptable. All systems are functioning within normal parameters." , lang='en')
 			tts.save("green.mp3")
 			os.system("mpg321 -q green.mp3")
 		except:
