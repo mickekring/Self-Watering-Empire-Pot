@@ -72,10 +72,14 @@ pause_time = 0.001
 ledSwitch = 0
 waterLevel = 0
 tankFull = 10
+
 # Fail safe
 todaysDate = strftime("%d")
 timesWateredToday = 0
+waterError = 0
 # / Fail safe
+
+# Stores and opens date/time when last watered
 f = open('lastwatered.txt','r')
 lastWatered = (f.read())
 f.close()
@@ -87,6 +91,7 @@ conf = yaml.load(open("credentials.yml"))
 
 ### LED lights
 
+# All leds on
 def led_all_on():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
@@ -99,6 +104,7 @@ def led_all_on():
 	red_one.ChangeDutyCycle(10)
 	red_two.ChangeDutyCycle(10)
 
+# Red leds on
 def led_red():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
@@ -106,6 +112,7 @@ def led_red():
 	red_one.ChangeDutyCycle(100)
 	red_two.ChangeDutyCycle(100)
 
+# Green leds on
 def led_green():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
@@ -113,6 +120,7 @@ def led_green():
 	green_one.ChangeDutyCycle(100)
 	green_two.ChangeDutyCycle(100)
 
+# Blue leds on
 def led_blue():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
@@ -121,6 +129,7 @@ def led_blue():
 	blue_two.ChangeDutyCycle(100)
 	blue_three.ChangeDutyCycle(100)
 
+# All leds off
 def led_off():
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,All leds off.".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -132,6 +141,7 @@ def led_off():
 	red_one.ChangeDutyCycle(0)
 	red_two.ChangeDutyCycle(0)
 
+# Red leds rolling lights
 def led_red_alert():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
@@ -157,6 +167,7 @@ def led_red_alert():
 	except KeyboardInterrupt:
 		led_off()
 
+# Green leds rolling lights
 def led_green_alert():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
@@ -182,8 +193,7 @@ def led_green_alert():
 	except KeyboardInterrupt:
 		led_off()
 
-### Blue leds rolling
-
+# Blue leds rolling lights
 def led_rolling():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
@@ -215,8 +225,7 @@ def led_rolling():
 	except KeyboardInterrupt:
 		led_off()
 
-### Water pump system - sets number of seconds that the water will pump.
-
+# Water pump system - sets number of seconds of relay that controls the water will pump
 def water_pump():
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,Relay on".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -233,12 +242,10 @@ def water_reading():
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,Water reading started.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	global dateNow
-	# Fail safe
 	global todaysDate
 	global timesWateredToday
 	global ledSwitch
 	dateNow = strftime("%d")
-	# / Fail safe
 	ledSwitch = 1
 	global waterLevel
 	waterLevel = 0
@@ -256,7 +263,7 @@ def water_reading():
 		os.system("mpg321 -q moisture.mp3")
 		pass
 	GPIO.output(hygro_Power, True)
-	time.sleep(0)
+	time.sleep(1)
 	waterNeed = 0
 	for x in range(1,4):
 		waterNeed += GPIO.input(hygro)
@@ -287,7 +294,7 @@ def water_reading():
 		ledSwitch = 0
 	elif waterNeed > 1:
 		if dateNow == todaysDate:
-			if timesWateredToday < 2 and todaysDate == todaysDate:
+			if timesWateredToday < 2:
 				ledSwitch = 1
 				waterLevel = 100
 				timesWateredToday += 1
@@ -305,7 +312,7 @@ def water_reading():
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Alert,Water pump engaging.".format(strftime("%Y-%m-%d %H:%M:%S")))
 				try:
-					tts = gTTS(text="Alert! Water pump engaging." , lang='en')
+					tts = gTTS(text="Water pump engaging." , lang='en')
 					tts.save("water.mp3")
 					os.system("mpg321 -q water.mp3")
 				except:
@@ -335,7 +342,7 @@ def water_reading():
 				ledSwitch = 0
 				time.sleep(2)
 				water_reading()
-			elif timesWateredToday > 1 and todaysDate == todaysDate:
+			elif waterError == 0 and timesWateredToday > 1:
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Error,Moisture sensor problems.".format(strftime("%Y-%m-%d %H:%M:%S")))
 				ledSwitch = 1
@@ -344,28 +351,37 @@ def water_reading():
 					tts = gTTS(text="Error. Moisture sensors may be corrupted. Please check. Aborting watering protocols for now. Sending SMS." , lang='en')
 					tts.save("sensors.mp3")
 					os.system("mpg321 -q sensors.mp3")
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_dont_fail.mp3")
 				except:
 					os.system("mpg321 -q sensors.mp3")
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_dont_fail.mp3")
 					pass
 				sms_moisture_warning()
 				ledSwitch = 0
 				waterError = 1
 				time.sleep(2)
-			elif waterError == 1:
+			elif waterError == 1 and timesWateredToday > 1:
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Log,Moisture sensor skipped.".format(strftime("%Y-%m-%d %H:%M:%S")))
 				try:
 					tts = gTTS(text="Alert. Moisture sensors may be corrupted. Please check. Aborting watering protocols for now." , lang='en')
 					tts.save("sensors.mp3")
 					os.system("mpg321 -q sensors.mp3")
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_dont_fail.mp3")
 				except:
 					os.system("mpg321 -q sensors.mp3")
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_dont_fail.mp3")
 					pass
-			elif dateNow != todaysDate:
-				todaysDate = strftime("%d")
-				timesWateredToday = 0
-				waterError = 0
-				logging()
+		elif dateNow != todaysDate:
+			todaysDate = strftime("%d")
+			timesWateredToday = 0
+			waterError = 0
+			logging()
+			water_reading()
 	time.sleep(1)
 	led_off()
 
@@ -408,7 +424,7 @@ def self_diagnostics():
 	try:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Log,Diagnostics start up sequence. Checking ligths.".format(strftime("%Y-%m-%d %H:%M:%S")))
-		tts = gTTS(text="Diagnostics start up sequence. Checking ligths." , lang='en')
+		tts = gTTS(text="Self diagnostics start up sequence. Checking ligths." , lang='en')
 		tts.save("diagnostics_lights.mp3")
 		os.system("mpg321 -q diagnostics_lights.mp3")
 	except:
@@ -433,6 +449,7 @@ def self_diagnostics():
 	Thread(target = led_rolling).start()
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	temp = cpu.temperature
+	led_green()
 	try:
 		tts = gTTS(text="Self diagnostics. My CPU runs at {0:0.0f} degrees celsius. Environmental temperature is {1:0.0f} degrees celsius with a relative humidity of {2:0.0f} percent.".format(temp, temperature, humidity) , lang='en')
 		tts.save("diagnostics.mp3")
@@ -442,6 +459,7 @@ def self_diagnostics():
 		internet_on()
 		pass
 	ledSwitch = 0
+	led_off()
 	time.sleep(1)
 	internet_on()
 
@@ -462,8 +480,12 @@ def internet_on():
 			tts = gTTS(text="Alert! All communications are down. Alert! Systems running in emergency mode. Alert! Restoring communications, priority alpha." , lang='en')
 			tts.save("internet_off.mp3")
 			os.system("mpg321 -q internet_off.mp3")
+			os.system("mpg321 -q vader_breathe.mp3")
+			os.system("mpg321 -q vader_dont_fail.mp3")
 		except:
 			os.system("mpg321 -q internet_off.mp3")
+			os.system("mpg321 -q vader_breathe.mp3")
+			os.system("mpg321 -q vader_dont_fail.mp3")
 			pass
 		ledSwitch = 0
 		pass
@@ -520,6 +542,8 @@ def fileupload_init():
 		tts = gTTS(text="Warning. Initial files error uploading." , lang='en')
 		tts.save("upload_init_error.mp3")
 		os.system("mpg321 -q upload_init_error.mp3")
+		os.system("mpg321 -q vader_breathe.mp3")
+		os.system("mpg321 -q vader_dont_fail.mp3")
 		ledSwitch = 0
 		time.sleep(2)
 		internet_on()
@@ -556,9 +580,11 @@ def fileupload_stats():
 			error_log.write("\n{0},Error,Warning. Stat file error uploading".format(strftime("%Y-%m-%d %H:%M:%S")))
 		ledSwitch = 1
 		Thread(target = led_red_alert).start()
-		tts = gTTS(text="Warning. Stat file error uploading." , lang='en')
+		tts = gTTS(text="Warning. Status file error uploading." , lang='en')
 		tts.save("upload_error.mp3")
 		os.system("mpg321 -q upload_error.mp3")
+		os.system("mpg321 -q vader_breathe.mp3")
+		os.system("mpg321 -q vader_dont_fail.mp3")
 		ledSwitch = 0
 		time.sleep(2)
 		internet_on()
@@ -614,6 +640,8 @@ def tweet_follow():
 		tts = gTTS(text="Warning. Twitter error. Unable to follow twitter users." , lang='en')
 		tts.save("twitter_follow_error.mp3")
 		os.system("mpg321 -q twitter_follow_error.mp3")
+		os.system("mpg321 -q vader_breathe.mp3")
+		os.system("mpg321 -q vader_dont_fail.mp3")
 		ledSwitch = 0
 		time.sleep(2)
 		internet_on()
@@ -688,9 +716,14 @@ def tweet_auto():
 				else:
 					pass
 
-				tts = gTTS(text="Incoming Tweet. Message recieved. {0}".format(tweetTextFetched) , lang='en')
+				tts = gTTS(text="Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
 				tts.save("incoming_tweet.mp3")
 				os.system("mpg321 -q incoming_tweet.mp3")
+				tts = gTTS(text="Vader, respond to tweet." , lang='en')
+				tts.save("responding_tweet.mp3")
+				os.system("mpg321 -q responding_tweet.mp3")
+				os.system("mpg321 -q vader_breathe.mp3")
+				os.system("mpg321 -q vader_yes.mp3")
 
 		time.sleep(20)
 
@@ -747,8 +780,26 @@ def audio_vol_full():
 	m = alsaaudio.Mixer("PCM")
 	current_volume = m.getvolume()
 	m.setvolume(90)
+	try:
+		tts = gTTS(text="Vader... set audio levels to full." , lang='en')
+		tts.save("audio_full.mp3")
+		os.system("mpg321 -q audio_full.mp3")
+	except:
+		os.system("mpg321 -q audio_full.mp3")
+		pass
+	os.system("mpg321 -q vader_breathe.mp3")
+	os.system("mpg321 -q vader_yes.mp3")
 
 def audio_vol_none():
+	try:
+		tts = gTTS(text="Vader... set audio levels to zero." , lang='en')
+		tts.save("audio_zero.mp3")
+		os.system("mpg321 -q audio_zero.mp3")
+	except:
+		os.system("mpg321 -q audio_zero.mp3")
+		pass
+	os.system("mpg321 -q vader_breathe.mp3")
+	os.system("mpg321 -q vader_yes.mp3")
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,Setting audio to 0%".format(strftime("%Y-%m-%d %H:%M:%S")))
 	m = alsaaudio.Mixer("PCM")
@@ -773,7 +824,6 @@ def Main():
 			tweet_follow()
 			water_reading()
 			time.sleep(600)
-
 
 	finally:
 		print("GPIO Clean up")
