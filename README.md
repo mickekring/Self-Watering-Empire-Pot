@@ -41,18 +41,18 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 
 ## Updates
 * __07 jan 2018 - v1.2 - Fail safes__<br />
-Sometimes the moisture sensors misread or are badly tuned or are simply worn down. To prevent over watering or other problems, I've coded a fail safe. When watered more than two times, it will send an SMS to check problems and lock watering for the rest of that day.
+Sometimes the moisture sensors misread or are badly tuned or are simply just worn down. To prevent over watering or similar problems, I've coded a fail safe. When watered more than two times, it will send an SMS to check problems and lock watering for the rest of that day.
 * __06 jan 2018 - v1.1 - Error logging__<br />
 Added some error logging to external file for easier debugging. Test running the program for longer periods of time now, for bug finding. 
 * __04 jan 2018 - v1.0 - Up and running__</br>
-Everyting is running by itself and it responds to tweets, sends SMS if water tank levels are getting low... and most important of all, it waters the plant if the soil is too dry.
-* __02 jan 2018 - Added weather data from openweathermap.org__<br/>
+No more test program. v1.0. Everyting is running by itself and it responds to tweets, sends SMS if water tank levels are getting low... and most important of all, it waters the plant if the soil is too dry.
+* __02 jan 2018 - v0.9 - Added weather data from openweathermap.org__<br/>
 Outside temperature, humidity and weather conditions are now a part of the program.
-* __01 jan 2018 - SMS and more Twitter__<br />
+* __01 jan 2018 - v0.8 - SMS and more Twitter__<br />
 The program can now accept commands via Twitter, from users who are entrusted. It will be one of the main forms of interactions with the program. It can now send SMS. 
-* __29 dec 2017 - Twitter capabilities__<br />
+* __29 dec 2017 - v0.7 - Twitter capabilities__<br />
 The program is now able to tweet, using Tweepy within Python. A function is setup and it's tweeting whatever is stored in the variable tweetMessage.
-* __29 dec 2017 - Initial upload__<br />
+* __29 dec 2017 - v0.5 - Initial upload__<br />
 Today is the day when I decided to start this GitHub project. More info will be added, but most importantly, this is a work in progress. I've been working on this project for a while, but I thought I ought to document it, so stay tuned.
 
 ## Hardware
