@@ -32,14 +32,17 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [x] Design and solder some simple circuit boards - Must learn to solder
 - [x] ~~Send warnings and status via e-mail or sms or slack or...~~ It will be communicating via SMS and Twitter.
 - [x] Twitter - The pot should be able to tweet. It's twitter account is @empireplantbot
-- [x] Fail safes - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
+- [x] Try / Except - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
+- [x] Fail Safes - Make sure the plant can't be over watered in case of malfunctioning sensors or other.
 - [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
 - [x] Glue gun - Glue the s--t out of everything
 - [x] Get weather data from openweathermap.org to display and log. Could be interesting to see how much outside temperatures affects the amount of watering needed.
 - [x] Message me when the water tank needs refill. Now, the pump is on for 3 seconds. That's enough for 10 waterings.
 
 ## Updates
-* __06 jan 20180 - v1.1 - Error logging__<br />
+* __07 jan 2018 - v1.2 - Fail safes__<br />
+Sometimes the moisture sensors misread or are badly tuned or are simply worn down. To prevent over watering or other problems, I've coded a fail safe. When watered more than two times, it will send an SMS to check problems and lock watering for the rest of that day.
+* __06 jan 2018 - v1.1 - Error logging__<br />
 Added some error logging to external file for easier debugging. Test running the program for longer periods of time now, for bug finding. 
 * __04 jan 2018 - v1.0 - Up and running__</br>
 Everyting is running by itself and it responds to tweets, sends SMS if water tank levels are getting low... and most important of all, it waters the plant if the soil is too dry.
