@@ -322,6 +322,17 @@ def water_reading():
 				tankFull -= 1
 				if tankFull < 3:
 					sms_tank_warning()
+					ledSwitch = 1
+					Thread(target = led_red_alert).start()
+					try:
+						tts = gTTS(text="Alert. Code red. Water tank is almost depleted. Refill. Priority alpha. Sending SMS" , lang='en')
+						tts.save("tankempty.mp3")
+						os.system("mpg321 -q tankempty.mp3")
+					except:
+						os.system("mpg321 -q tankempty.mp3")
+						pass
+					ledSwitch = 0
+					time.sleep(2)
 				else:
 					pass
 				lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
@@ -432,7 +443,7 @@ def self_diagnostics():
 	try:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Log,Diagnostics start up sequence. Checking ligths.".format(strftime("%Y-%m-%d %H:%M:%S")))
-		tts = gTTS(text="Self diagnostics start up sequence. Checking ligths." , lang='en')
+		tts = gTTS(text="Alert. Empire plant pot online. Self diagnostics start up sequence initiated. Checking ligths." , lang='en')
 		tts.save("diagnostics_lights.mp3")
 		os.system("mpg321 -q diagnostics_lights.mp3")
 	except:
@@ -459,7 +470,7 @@ def self_diagnostics():
 	temp = cpu.temperature
 	led_green()
 	try:
-		tts = gTTS(text="Self diagnostics. My CPU runs at {0:0.0f} degrees celsius. Environmental temperature is {1:0.0f} degrees celsius with a relative humidity of {2:0.0f} percent.".format(temp, temperature, humidity) , lang='en')
+		tts = gTTS(text="Self diagnostics. Central core CPU runs at {0:0.0f} degrees celsius. Room temperature is {1:0.0f} degrees celsius with a relative humidity of {2:0.0f} percent.".format(temp, temperature, humidity) , lang='en')
 		tts.save("diagnostics.mp3")
 		os.system("mpg321 -q diagnostics.mp3")
 	except:
@@ -503,7 +514,7 @@ def internet_on():
 		ledSwitch = 1
 		Thread(target = led_green_alert).start()
 		try:
-			tts = gTTS(text="Code green! All communication systems working within normal parameters." , lang='en')
+			tts = gTTS(text="Code green! All communication systems are online and working within normal parameters." , lang='en')
 			tts.save("internet_on.mp3")
 			os.system("mpg321 -q internet_on.mp3")
 		except:
@@ -600,31 +611,6 @@ def fileupload_stats():
 
 ### Twitter
 
-def tweet():
-	consumer_key = conf['twitter']['consumer_key']
-	consumer_secret = conf['twitter']['consumer_secret']
-	access_token = conf['twitter']['access_token']
-	access_token_secret = conf['twitter']['access_token_secret']
-
-	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-	auth.set_access_token(access_token, access_token_secret)
-	api = tweepy.API(auth)
-	try:
-		img = "wateringplants.jpg"
-		api.update_with_media(img, status=tweetMessage + " " + lastWatered)
-		print("Tweet sent.")
-	except:
-		global ledSwitch
-		print("Warning. Twitter error. Unable to send tweet.")
-		ledSwitch = 1
-		Thread(target = led_red_alert).start()
-		tts = gTTS(text="Warning. Twitter error. Unable to send tweet." , lang='en')
-		tts.save("twitter_error.mp3")
-		os.system("mpg321 -q twitter_error.mp3")
-		ledSwitch = 0
-		internet_on()
-		pass
-
 def tweet_follow():
 	consumer_key = conf['twitter']['consumer_key']
 	consumer_secret = conf['twitter']['consumer_secret']
@@ -719,21 +705,25 @@ def tweet_auto():
 						api.update_status(status = "I've set speaker volume to 100%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 						with open("error_log.csv", "a") as error_log:
 							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
+					elif "help" in tweetText:
+						api.update_status(status = "Commands:\nrefill, silence, loud, status - @mickekring.", in_reply_to_status_id = (tweetIDFetched))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					else:
 						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 				else:
 					pass
 
-				tts = gTTS(text="Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
+				tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
 				tts.save("incoming_tweet.mp3")
 				os.system("mpg321 -q incoming_tweet.mp3")
-				tts = gTTS(text="Vader, respond to tweet." , lang='en')
+				tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
 				tts.save("responding_tweet.mp3")
 				os.system("mpg321 -q responding_tweet.mp3")
 				os.system("mpg321 -q vader_breathe.mp3")
 				os.system("mpg321 -q vader_yes.mp3")
 
-		time.sleep(20)
+		time.sleep(2)
 
 ### SMS
 
@@ -748,10 +738,6 @@ def sms():
 		from_= conf["twilio"]["from_phone_number"],
 		body=tweetMessage + "\n" + lastWatered)
 
-	#print(message.sid)
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0} Log: Status SMS sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
-
 def sms_tank_warning():
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Alert,Sending tank warning SMS.".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -762,9 +748,6 @@ def sms_tank_warning():
 		to= conf["twilio"]["to_phone_number"],
 		from_= conf["twilio"]["from_phone_number"],
 		body="Alert! You need to refill the water tank. Only " + str(tankFull) + " times left.\n\n" + lastWatered)
-
-	#print(message.sid)
-	# print("\n{0} Alert: SMS tank warning SMS sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 
 def sms_moisture_warning():
 	with open("error_log.csv", "a") as error_log:
@@ -777,9 +760,6 @@ def sms_moisture_warning():
 		from_= conf["twilio"]["from_phone_number"],
 		body="Warning! It seems to be something wrong with the moisture sensors. Please check.")
 
-	#print(message.sid)
-	#print("\n{0} Alert: SMS tank warning SMS sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
-
 ### Audio controls
 
 def audio_vol_full():
@@ -789,7 +769,7 @@ def audio_vol_full():
 	current_volume = m.getvolume()
 	m.setvolume(90)
 	try:
-		tts = gTTS(text="Vader... set audio levels to full." , lang='en')
+		tts = gTTS(text="Lord Vader... Set audio levels to full." , lang='en')
 		tts.save("audio_full.mp3")
 		os.system("mpg321 -q audio_full.mp3")
 	except:
@@ -800,7 +780,7 @@ def audio_vol_full():
 
 def audio_vol_none():
 	try:
-		tts = gTTS(text="Vader... set audio levels to zero." , lang='en')
+		tts = gTTS(text="Lord Vader... Set audio levels to zero." , lang='en')
 		tts.save("audio_zero.mp3")
 		os.system("mpg321 -q audio_zero.mp3")
 	except:
