@@ -72,7 +72,10 @@ pause_time = 0.001
 ledSwitch = 0
 waterLevel = 0
 tankFull = 10
-
+# Fail safe
+todaysDate = strftime("%d")
+timesWateredToday = 0
+# / Fail safe
 f = open('lastwatered.txt','r')
 lastWatered = (f.read())
 f.close()
@@ -229,24 +232,31 @@ def water_reading():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,Water reading started.".format(strftime("%Y-%m-%d %H:%M:%S")))
+	global dateNow
+	# Fail safe
+	global todaysDate
+	global timesWateredToday
 	global ledSwitch
+	dateNow = strftime("%d")
+	# / Fail safe
 	ledSwitch = 1
 	global waterLevel
 	waterLevel = 0
 	global lastWatered
 	global tankFull
+	global waterError
 	Thread(target = led_rolling).start()
-	try:
-		with open("error_log.csv", "a") as error_log:
+	with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Log,Alert! Soil moisture levels will be tested".format(strftime("%Y-%m-%d %H:%M:%S")))
-		tts = gTTS(text="Alert! Soil moisture levels will be tested in T minus two seconds." , lang='en')
+	try:
+		tts = gTTS(text="Alert! Testing soil moisture levels in T minus two seconds." , lang='en')
 		tts.save("moisture.mp3")
 		os.system("mpg321 -q moisture.mp3")
 	except:
 		os.system("mpg321 -q moisture.mp3")
 		pass
 	GPIO.output(hygro_Power, True)
-	time.sleep(1)
+	time.sleep(0)
 	waterNeed = 0
 	for x in range(1,4):
 		waterNeed += GPIO.input(hygro)
@@ -264,9 +274,9 @@ def water_reading():
 		ledSwitch = 1
 		waterLevel = 0
 		Thread(target = led_green_alert).start()
-		try:
-			with open("error_log.csv", "a") as error_log:
+		with open("error_log.csv", "a") as error_log:
 				error_log.write("\n{0},Log,Code green. Moisture levels are green.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		try:
 			tts = gTTS(text="Code green. Moisture levels are acceptable. All systems are functioning within normal parameters." , lang='en')
 			tts.save("green.mp3")
 			os.system("mpg321 -q green.mp3")
@@ -275,53 +285,87 @@ def water_reading():
 			pass
 		logging()
 		ledSwitch = 0
-	if waterNeed > 1:
-		ledSwitch = 1
-		waterLevel = 100
-		Thread(target = led_red_alert).start()
-		try:
-			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0},Alert,Code red. Watering protocols will now engage.".format(strftime("%Y-%m-%d %H:%M:%S")))
-			tts = gTTS(text="Code red. We have a code red. Watering protocols will now engage." , lang='en')
-			tts.save("red.mp3")
-			os.system("mpg321 -q red.mp3")
-		except:
-			os.system("mpg321 -q red.mp3")
-			pass
-		time.sleep(1)
-		try:
-			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0},Alert,Water pump engaging.".format(strftime("%Y-%m-%d %H:%M:%S")))
-			tts = gTTS(text="Alert! Water pump engaging." , lang='en')
-			tts.save("water.mp3")
-			os.system("mpg321 -q water.mp3")
-		except:
-			os.system("mpg321 -q water.mp3")
-			pass
-		water_pump()
-		tankFull -= 1
-		if tankFull < 3:
-			sms_tank_warning()
-		else:
-			pass
-		lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
-		f = open('lastwatered.txt', 'w')
-		f.write(lastWatered)
-		f.close()
-		time.sleep(10)
-		logging()
-		try:
-			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0},Log,Moisture levels will now be re-tested by secondary systems.".format(strftime("%Y-%m-%d %H:%M:%S")))
-			tts = gTTS(text="Moisture levels will now be re-tested by secondary systems." , lang='en')
-			tts.save("retest.mp3")
-			os.system("mpg321 -q retest.mp3")
-		except:
-			os.system("mpg321 -q retest.mp3")
-			pass
-		ledSwitch = 0
-		time.sleep(2)
-		water_reading()
+	elif waterNeed > 1:
+		if dateNow == todaysDate:
+			if timesWateredToday < 2 and todaysDate == todaysDate:
+				ledSwitch = 1
+				waterLevel = 100
+				timesWateredToday += 1
+				Thread(target = led_red_alert).start()
+				with open("error_log.csv", "a") as error_log:
+						error_log.write("\n{0},Alert,Code red. Watering protocols will now engage.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				try:
+					tts = gTTS(text="Alert. Code red. Watering protocols will now engage." , lang='en')
+					tts.save("red.mp3")
+					os.system("mpg321 -q red.mp3")
+				except:
+					os.system("mpg321 -q red.mp3")
+					pass
+				time.sleep(2)
+				with open("error_log.csv", "a") as error_log:
+						error_log.write("\n{0},Alert,Water pump engaging.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				try:
+					tts = gTTS(text="Alert! Water pump engaging." , lang='en')
+					tts.save("water.mp3")
+					os.system("mpg321 -q water.mp3")
+				except:
+					os.system("mpg321 -q water.mp3")
+					pass
+				water_pump()
+				tankFull -= 1
+				if tankFull < 3:
+					sms_tank_warning()
+				else:
+					pass
+				lastWatered = (("Status update. The plant was succesfully watered at " + strftime("%H:%M") + ", " + strftime("%A, %B %d" + ".")))
+				f = open('lastwatered.txt', 'w')
+				f.write(lastWatered)
+				f.close()
+				time.sleep(10)
+				logging()
+				with open("error_log.csv", "a") as error_log:
+						error_log.write("\n{0},Log,Moisture levels will now be re-tested by secondary systems.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				try:
+					tts = gTTS(text="Alert. Moisture levels will now be re-tested by secondary systems." , lang='en')
+					tts.save("retest.mp3")
+					os.system("mpg321 -q retest.mp3")
+				except:
+					os.system("mpg321 -q retest.mp3")
+					pass
+				ledSwitch = 0
+				time.sleep(2)
+				water_reading()
+			elif timesWateredToday > 1 and todaysDate == todaysDate:
+				with open("error_log.csv", "a") as error_log:
+						error_log.write("\n{0},Error,Moisture sensor problems.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				ledSwitch = 1
+				Thread(target = led_red_alert).start()
+				try:
+					tts = gTTS(text="Error. Moisture sensors may be corrupted. Please check. Aborting watering protocols for now. Sending SMS." , lang='en')
+					tts.save("sensors.mp3")
+					os.system("mpg321 -q sensors.mp3")
+				except:
+					os.system("mpg321 -q sensors.mp3")
+					pass
+				sms_moisture_warning()
+				ledSwitch = 0
+				waterError = 1
+				time.sleep(2)
+			elif waterError == 1:
+				with open("error_log.csv", "a") as error_log:
+						error_log.write("\n{0},Log,Moisture sensor skipped.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				try:
+					tts = gTTS(text="Alert. Moisture sensors may be corrupted. Please check. Aborting watering protocols for now." , lang='en')
+					tts.save("sensors.mp3")
+					os.system("mpg321 -q sensors.mp3")
+				except:
+					os.system("mpg321 -q sensors.mp3")
+					pass
+			elif dateNow != todaysDate:
+				todaysDate = strftime("%d")
+				timesWateredToday = 0
+				waterError = 0
+				logging()
 	time.sleep(1)
 	led_off()
 
@@ -607,7 +651,7 @@ def tweet_auto():
 				
 				if "@empireplantbot" in tweetText:
 					with open("error_log.csv", "a") as error_log:
-						error_log.write("\n{0},Alert,Twitter message sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
+						error_log.write("\n{0},Alert,Twitter message recieved.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					if "status" in tweetText:
 						temp_humidity()
 						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\n" + lastWatered), in_reply_to_status_id = (tweetIDFetched))
@@ -679,7 +723,21 @@ def sms_tank_warning():
 		body="Alert! You need to refill the water tank. Only " + str(tankFull) + " times left.\n\n" + lastWatered)
 
 	#print(message.sid)
-	print("\n{0} Alert: SMS tank warning SMS sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
+	# print("\n{0} Alert: SMS tank warning SMS sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
+
+def sms_moisture_warning():
+	with open("error_log.csv", "a") as error_log:
+		error_log.write("\n{0},Alert,Sending moisture sensor warning SMS.".format(strftime("%Y-%m-%d %H:%M:%S")))
+	account_sid = conf["twilio"]["account_sid"]
+	auth_token = conf["twilio"]["auth_token"]
+	client = Client(account_sid, auth_token)
+	message = client.messages.create(
+		to= conf["twilio"]["to_phone_number"],
+		from_= conf["twilio"]["from_phone_number"],
+		body="Warning! It seems to be something wrong with the moisture sensors. Please check.")
+
+	#print(message.sid)
+	#print("\n{0} Alert: SMS tank warning SMS sent.".format(strftime("%Y-%m-%d %H:%M:%S")))
 
 ### Audio controls
 
@@ -714,7 +772,7 @@ def Main():
 		while True:
 			tweet_follow()
 			water_reading()
-			time.sleep(1800)
+			time.sleep(600)
 
 
 	finally:
