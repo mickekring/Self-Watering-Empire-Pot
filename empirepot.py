@@ -361,10 +361,14 @@ def water_reading():
 				sms_moisture_warning()
 				ledSwitch = 0
 				waterError = 1
+				waterLevel = 0
+				logging()
 				time.sleep(2)
 			elif waterError == 1 and timesWateredToday > 1:
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Log,Moisture sensor skipped.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				ledSwitch = 1
+				Thread(target = led_red_alert).start()
 				try:
 					tts = gTTS(text="Alert. Moisture sensors may be corrupted. Please check. Aborting watering protocols for now." , lang='en')
 					tts.save("sensors.mp3")
@@ -376,13 +380,17 @@ def water_reading():
 					os.system("mpg321 -q vader_breathe.mp3")
 					os.system("mpg321 -q vader_dont_fail.mp3")
 					pass
+				ledSwitch = 0
+				waterLevel = 0
+				logging()
+				time.sleep(2)
 		elif dateNow != todaysDate:
 			todaysDate = strftime("%d")
 			timesWateredToday = 0
 			waterError = 0
 			logging()
 			water_reading()
-	time.sleep(1)
+	time.sleep(2)
 	led_off()
 
 # Temp and humidity
@@ -823,7 +831,7 @@ def Main():
 		while True:
 			tweet_follow()
 			water_reading()
-			time.sleep(600)
+			time.sleep(1800)
 
 	finally:
 		print("GPIO Clean up")
