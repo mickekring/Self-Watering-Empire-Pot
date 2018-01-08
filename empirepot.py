@@ -441,6 +441,9 @@ def logging():
 
 def self_diagnostics():
 	led_off()
+	global ledSwitch
+	ledSwitch = 1
+	Thread(target = led_rolling).start()
 	try:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Log,Diagnostics start up sequence. Checking ligths.".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -452,10 +455,9 @@ def self_diagnostics():
 			error_log.write("Error: Internet error.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		internet_on()
 		pass
-	time.sleep(1)
+	ledSwitch = 0
+	time.sleep(2)
 	led_all_on()
-	time.sleep(1)
-	led_off()
 	time.sleep(1)
 	led_blue()
 	time.sleep(1)
@@ -464,7 +466,6 @@ def self_diagnostics():
 	led_red()
 	time.sleep(1)
 	led_off()
-	global ledSwitch
 	ledSwitch = 1
 	Thread(target = led_rolling).start()
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
@@ -656,6 +657,8 @@ def tweet_auto():
 	auth.set_access_token(access_token, access_token_secret)
 	api = tweepy.API(auth)
 
+	global ledSwitch
+
 	while True:
 		tweetFetched = api.user_timeline(screen_name = "mickekring", count = 1)
 
@@ -715,13 +718,17 @@ def tweet_auto():
 				else:
 					pass
 				ledSwitch = 1
-				Thread(target = led_red_alert).start()
+				Thread(target = led_rolling).start()
 				tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
 				tts.save("incoming_tweet.mp3")
 				os.system("mpg321 -q incoming_tweet.mp3")
 				tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
 				tts.save("responding_tweet.mp3")
 				os.system("mpg321 -q responding_tweet.mp3")
+				ledSwitch = 0
+				time.sleep(2)
+				ledSwitch = 1
+				Thread(target = led_red_alert).start()
 				os.system("mpg321 -q vader_breathe.mp3")
 				os.system("mpg321 -q vader_yes.mp3")
 				ledSwitch = 0
@@ -772,6 +779,10 @@ def audio_vol_full():
 	m = alsaaudio.Mixer("PCM")
 	current_volume = m.getvolume()
 	m.setvolume(90)
+	global ledSwitch
+	ledSwitch = 1
+	Thread(target = led_red_alert).start()
+
 	try:
 		tts = gTTS(text="Lord Vader... Set audio levels to full." , lang='en')
 		tts.save("audio_full.mp3")
@@ -780,8 +791,13 @@ def audio_vol_full():
 		os.system("mpg321 -q audio_full.mp3")
 		pass
 	os.system("mpg321 -q vader_yes.mp3")
+	ledSwitch = 0
+	time.sleep(2)
 
 def audio_vol_none():
+	global ledSwitch
+	ledSwitch = 1
+	Thread(target = led_red_alert).start()
 	try:
 		tts = gTTS(text="Lord Vader... Set audio levels to zero." , lang='en')
 		tts.save("audio_zero.mp3")
@@ -791,6 +807,8 @@ def audio_vol_none():
 		pass
 	os.system("mpg321 -q vader_breathe.mp3")
 	os.system("mpg321 -q vader_yes.mp3")
+	ledSwitch = 0
+	time.sleep(2)
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,Setting audio to 0%".format(strftime("%Y-%m-%d %H:%M:%S")))
 	m = alsaaudio.Mixer("PCM")
