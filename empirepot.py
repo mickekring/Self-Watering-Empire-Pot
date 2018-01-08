@@ -292,6 +292,7 @@ def water_reading():
 			pass
 		logging()
 		ledSwitch = 0
+		time.sleep(2)
 	elif waterNeed > 1:
 		if dateNow == todaysDate:
 			if timesWateredToday < 2:
@@ -468,7 +469,6 @@ def self_diagnostics():
 	Thread(target = led_rolling).start()
 	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 	temp = cpu.temperature
-	led_green()
 	try:
 		tts = gTTS(text="Self diagnostics. Central core CPU runs at {0:0.0f} degrees celsius. Room temperature is {1:0.0f} degrees celsius with a relative humidity of {2:0.0f} percent.".format(temp, temperature, humidity) , lang='en')
 		tts.save("diagnostics.mp3")
@@ -478,8 +478,7 @@ def self_diagnostics():
 		internet_on()
 		pass
 	ledSwitch = 0
-	led_off()
-	time.sleep(1)
+	time.sleep(2)
 	internet_on()
 
 ### Checking internet connection
@@ -507,6 +506,7 @@ def internet_on():
 			os.system("mpg321 -q vader_dont_fail.mp3")
 			pass
 		ledSwitch = 0
+		time.sleep(2)
 		pass
 	else:
 		with open("error_log.csv", "a") as error_log:
@@ -521,6 +521,7 @@ def internet_on():
 			os.system("mpg321 -q internet_on.mp3")
 			pass
 		ledSwitch = 0
+		time.sleep(2)
 
 ### FILE UPLOADS
 
@@ -541,9 +542,9 @@ def fileupload_init():
 	try:
 		sftp.chdir("/var/www/bloggmu/public/rum/blomma")
 		filepath = "stats.csv"
-		localpath = "/home/pi/kod/empirepot/stats.csv"
+		localpath = "/home/pi/kod/empirebot/stats.csv"
 		filepath2 = "index.html"
-		localpath2 = "/home/pi/kod/empirepot/index.html"
+		localpath2 = "/home/pi/kod/empirebot/index.html"
 
 		sftp.put(localpath, filepath)
 		sftp.put(localpath2, filepath2)
@@ -585,7 +586,7 @@ def fileupload_stats():
 	try:
 		sftp.chdir("/var/www/bloggmu/public/rum/blomma")
 		filepath = "stats.csv"
-		localpath = "/home/pi/kod/empirepot/stats.csv"
+		localpath = "/home/pi/kod/empirebot/stats.csv"
 
 		sftp.put(localpath, filepath)
 
@@ -713,7 +714,8 @@ def tweet_auto():
 						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 				else:
 					pass
-
+				ledSwitch = 1
+				Thread(target = led_red_alert).start()
 				tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
 				tts.save("incoming_tweet.mp3")
 				os.system("mpg321 -q incoming_tweet.mp3")
@@ -722,6 +724,8 @@ def tweet_auto():
 				os.system("mpg321 -q responding_tweet.mp3")
 				os.system("mpg321 -q vader_breathe.mp3")
 				os.system("mpg321 -q vader_yes.mp3")
+				ledSwitch = 0
+				time.sleep(2)
 
 		time.sleep(2)
 
@@ -775,7 +779,6 @@ def audio_vol_full():
 	except:
 		os.system("mpg321 -q audio_full.mp3")
 		pass
-	os.system("mpg321 -q vader_breathe.mp3")
 	os.system("mpg321 -q vader_yes.mp3")
 
 def audio_vol_none():
