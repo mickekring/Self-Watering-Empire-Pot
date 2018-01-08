@@ -86,6 +86,9 @@ In this project I'm using a couple of libraries that you'll probably have to ins
 * gTTS - Google text to speech
 * YAML - To store and retrieve credentials from external yml file
 * Tweepy - so that the pot can tweet on Twitter
+* alsaaudio - to control volume levels
+* gpiozero - to get the cpu temperature - for statistics
+* twilio - to get twilio and sms functionality working
 
 # Modules
 I'll explain what the different modules do here.
