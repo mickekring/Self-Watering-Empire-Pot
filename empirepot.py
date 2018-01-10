@@ -676,6 +676,22 @@ def tweet_auto():
 				tweetText = tweetTextFetched.lower()
 				
 				if "@empireplantbot" in tweetText:
+					ledSwitch = 1
+					Thread(target = led_rolling).start()
+					tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
+					tts.save("incoming_tweet.mp3")
+					os.system("mpg321 -q incoming_tweet.mp3")
+					tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
+					tts.save("responding_tweet.mp3")
+					os.system("mpg321 -q responding_tweet.mp3")
+					ledSwitch = 0
+					time.sleep(2)
+					ledSwitch = 1
+					Thread(target = led_red_alert).start()
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_yes.mp3")
+					ledSwitch = 0
+					time.sleep(2)
 					with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Alert,Twitter message recieved.".format(strftime("%Y-%m-%d %H:%M:%S")))
 					if "status" in tweetText:
@@ -717,22 +733,6 @@ def tweet_auto():
 						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 				else:
 					pass
-				ledSwitch = 1
-				Thread(target = led_rolling).start()
-				tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
-				tts.save("incoming_tweet.mp3")
-				os.system("mpg321 -q incoming_tweet.mp3")
-				tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
-				tts.save("responding_tweet.mp3")
-				os.system("mpg321 -q responding_tweet.mp3")
-				ledSwitch = 0
-				time.sleep(2)
-				ledSwitch = 1
-				Thread(target = led_red_alert).start()
-				os.system("mpg321 -q vader_breathe.mp3")
-				os.system("mpg321 -q vader_yes.mp3")
-				ledSwitch = 0
-				time.sleep(2)
 
 		time.sleep(2)
 
