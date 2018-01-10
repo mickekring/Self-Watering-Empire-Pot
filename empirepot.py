@@ -340,7 +340,7 @@ def water_reading():
 				f = open('lastwatered.txt', 'w')
 				f.write(lastWatered)
 				f.close()
-				time.sleep(10)
+				time.sleep(2)
 				logging()
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Log,Moisture levels will now be re-tested by secondary systems.".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -734,7 +734,7 @@ def tweet_auto():
 				else:
 					pass
 
-		time.sleep(2)
+		time.sleep(30)
 
 ### SMS
 
