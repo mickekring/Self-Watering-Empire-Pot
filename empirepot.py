@@ -734,7 +734,7 @@ def tweet_auto():
 				else:
 					pass
 
-		time.sleep(30)
+		time.sleep(40)
 
 ### SMS
 
