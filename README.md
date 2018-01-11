@@ -26,7 +26,8 @@ Here you'll find short movies of the latest state of the project.<br /><br />
 * It logs stats, which it sends to a web server via SFTP
 * It keeps me company, when alone ;)
 * It's got some fail safes, like only beeing able to water the plant for two times a day, then sends a warning SMS that something may be wrong, and it can only text that message once per day
-* It's designed and 3D-printed by me, except the stormtrooper and the empire logo, which I found on Thingiverse and 3D-printed. 
+* It's designed and 3D-printed by me, except the stormtrooper and the empire logo, which I found on Thingiverse and 3D-printed
+* Since it's pretty internet-dependent, it will try-except ecerything if no connection is available and log it and store locally
 
 ## Updates
 * __07 jan 2018 - v1.2 - Fail safes__<br />
