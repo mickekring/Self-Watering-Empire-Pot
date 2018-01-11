@@ -7,25 +7,26 @@ So why "empire"? Well, I wanted to throw a bit of Star Wars at it. :)__
 __11 jan 2018:__ This project is a work in progress but it's now up and running to iron out some bugs and quirks. Check updates for more information.
 
 ## Disclaimer
-My Python skills are at best on a beginners level so I'll gladly take any good advice.
+My Python skills are at best on a beginners level so I'll gladly take on any good advice. But what you see is what you get. I'm not better than this.
 
 ## Where I'm at - at the moment
 Here you'll find short movies of the latest state of the project.<br /><br />
 [![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/2018-01-04.jpg "Latest state")](https://vimeo.com/249696012)
 
-## What it is and does
+## What it is and what it does
 * It's a plant pot, where a plant grows
 * It detects whether the soil is too dry, and if it is, switches on a relay which cotrols a water pump, which gives water to the plant
 * It reads temperature and humidity via a sensor where the plant is
-* It grabs temperatur, humidity and the weather via API from openweathermap.org
+* It grabs outside local temperatur, humidity and the weather via API from openweathermap.org
 * It has a speaker and an amplifier which makes it able to "speak" via gTTS (google text to speech)
-* It has a couple of led diods, blue, red and green
+* It has a couple of led diods, blue, red and green so it can display alerts, code greens and stuff using PWM (pulse width modulation). It also looks kind of cool
 * It sends SMS to eg warn if the tank level is low and needs a refill via Twilio
 * It can send status updates and recieve commands via Twitter
 * It logs to a csv file
 * It logs stats, which it sends to a web server via SFTP
 * It keeps me company, when alone ;)
 * It's got some fail safes, like only beeing able to water the plant for two times a day, then sends a warning SMS that something may be wrong, and it can only text that message once per day
+* It's designed and 3D-printed by me, except the stormtrooper and the empire logo, which I found on Thingiverse and 3D-printed. 
 
 ## Updates
 * __07 jan 2018 - v1.2 - Fail safes__<br />
