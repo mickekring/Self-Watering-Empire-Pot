@@ -17,7 +17,7 @@ Here you'll find short movies of the latest state of the project.<br /><br />
 * It's a plant pot, where a plant grows
 * It detects whether the soil is too dry, and if it is, switches on a relay which cotrols a water pump, which gives water to the plant
 * It reads temperature and humidity via a sensor where the plant is
-* It grabs outside local temperatur, humidity and the weather via API from openweathermap.org
+* It grabs outside local temperature, humidity and the weather via API from openweathermap.org
 * It has a speaker and an amplifier which makes it able to "speak" via gTTS (google text to speech)
 * It has a couple of led diods, blue, red and green so it can display alerts, code greens and stuff using PWM (pulse width modulation). It also looks kind of cool
 * It sends SMS to eg warn if the tank level is low and needs a refill via Twilio
