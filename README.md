@@ -3,8 +3,8 @@ __What is this? Well, it's a simple DIY/Maker/Python3 project which I created to
 When the soil moisture levels are below a certain number a water pump will pump water into the pot.<br />
 So why "empire"? Well, I wanted to throw a bit of Star Wars at it. :)__
 
-## Work in progress
-This project is a work in progress and considered beta at the moment. Check updates for more information.
+## Work in progress - working!
+__11 jan 2018:__ This project is a work in progress but it's now up and running to iron out some bugs and quirks. Check updates for more information.
 
 ## Disclaimer
 My Python skills are at best on a beginners level so I'll gladly take any good advice.
@@ -13,31 +13,19 @@ My Python skills are at best on a beginners level so I'll gladly take any good a
 Here you'll find short movies of the latest state of the project.<br /><br />
 [![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/2018-01-04.jpg "Latest state")](https://vimeo.com/249696012)
 
-## Road map and goals
-This is sort of what I want out of the project. As I get new ideas, this will grow.
-- [x] gTTS - Google text to speech - The pot should be able to communicate through speech.
-- [x] ~~STT - Speech to text - preferably I'd like to speak to the pot (which is healthy for it as well) as my main input~~ This will not be implemented, since I find it to unreliable and slow. Main means of communication will be trhough Twitter, where I can send commands.
-- [x] Temperature sensor - record temperature near the plant for statistics
-- [x] Humidity sensor - record humidity near the plant for statistics
-- [x] Soil moisture sensor - to sense whether the plant needs water or not
-- [ ] Light sensor - record the amount of light the plant gets
-- [ ] Proximity sensor - Sense when people are near the plant for automatic status updates
-- [x] PWM - Pulse Width Modulation - for a pulsating light effect when red and green alert and for blue when pot is speaking
-- [x] Check internet connection and warn if off
-- [x] Log sensory inputs in a csv-file
-- [x] Send logs to a web server via SFTP and serve graph charts
-- [x] Relay - Control water pump
-- [x] ~~Camera - It would be cool if I could hook up a camera and use it to take a snap now and again, which will be sent to a web server~~This will not be implemented, since I think it would be kind of useless after a while. 
-- [x] Design and build casings and pots using 3D-software and printing - I'm designing it by using modules. A pot module, speaker/light module, water tank and so on.
-- [x] Design and solder some simple circuit boards - Must learn to solder
-- [x] ~~Send warnings and status via e-mail or sms or slack or...~~ It will be communicating via SMS and Twitter.
-- [x] Twitter - The pot should be able to tweet. It's twitter account is @empireplantbot
-- [x] Try / Except - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
-- [x] Fail Safes - Make sure the plant can't be over watered in case of malfunctioning sensors or other.
-- [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
-- [x] Glue gun - Glue the s--t out of everything
-- [x] Get weather data from openweathermap.org to display and log. Could be interesting to see how much outside temperatures affects the amount of watering needed.
-- [x] Message me when the water tank needs refill. Now, the pump is on for 3 seconds. That's enough for 10 waterings.
+## What it is and does
+* It's a plant pot, where a plant grows
+* It detects whether the soil is too dry, and if it is, switches on a relay which cotrols a water pump, which gives water to the plant
+* It reads temperature and humidity via a sensor where the plant is
+* It grabs temperatur, humidity and the weather via API from openweathermap.org
+* It has a speaker and an amplifier which makes it able to "speak" via gTTS (google text to speech)
+* It has a couple of led diods, blue, red and green
+* It sends SMS to eg warn if the tank level is low and needs a refill via Twilio
+* It can send status updates and recieve commands via Twitter
+* It logs to a csv file
+* It logs stats, which it sends to a web server via SFTP
+* It keeps me company, when alone ;)
+* It's got some fail safes, like only beeing able to water the plant for two times a day, then sends a warning SMS that something may be wrong, and it can only text that message once per day
 
 ## Updates
 * __07 jan 2018 - v1.2 - Fail safes__<br />
@@ -101,9 +89,31 @@ The speaker module contains a small speaker and an amplifier (the red little boa
 There's not really that much to say about this module, more than that this is where the plant resides.
 
 ## Water tank module
-More info will be added. At the bottom if the tank I've glued down the water pump. 
+![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/water_tank.JPG "Water Tank")<br /><br />
+At the bottom if the tank I've glued down the water pump. The tank holds about 10-11 cycles of watering (3 seconds).
 
-## History and ideas
-![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/fortproj2-2.jpg "Sketch")
-This is how it all started. With a sketch on my whiteboard at the office. I wanted to learn more about Python3 and what you can do with programming.<br />
-More info will be written...
+## Road map and goals
+This is sort of what I want out of the project. As I get new ideas, this will grow.
+- [x] gTTS - Google text to speech - The pot should be able to communicate through speech.
+- [x] ~~STT - Speech to text - preferably I'd like to speak to the pot (which is healthy for it as well) as my main input~~ This will not be implemented, since I find it to unreliable and slow. Main means of communication will be trhough Twitter, where I can send commands.
+- [x] Temperature sensor - record temperature near the plant for statistics
+- [x] Humidity sensor - record humidity near the plant for statistics
+- [x] Soil moisture sensor - to sense whether the plant needs water or not
+- [ ] Light sensor - record the amount of light the plant gets
+- [ ] Proximity sensor - Sense when people are near the plant for automatic status updates
+- [x] PWM - Pulse Width Modulation - for a pulsating light effect when red and green alert and for blue when pot is speaking
+- [x] Check internet connection and warn if off
+- [x] Log sensory inputs in a csv-file
+- [x] Send logs to a web server via SFTP and serve graph charts
+- [x] Relay - Control water pump
+- [x] ~~Camera - It would be cool if I could hook up a camera and use it to take a snap now and again, which will be sent to a web server~~This will not be implemented, since I think it would be kind of useless after a while. 
+- [x] Design and build casings and pots using 3D-software and printing - I'm designing it by using modules. A pot module, speaker/light module, water tank and so on.
+- [x] Design and solder some simple circuit boards - Must learn to solder
+- [x] ~~Send warnings and status via e-mail or sms or slack or...~~ It will be communicating via SMS and Twitter.
+- [x] Twitter - The pot should be able to tweet. It's twitter account is @empireplantbot
+- [x] Try / Except - Make sure that the core functions keeps running and logging is done locally only if eg internet goes down
+- [x] Fail Safes - Make sure the plant can't be over watered in case of malfunctioning sensors or other.
+- [ ] Network messaging - Merge this project with earlier project and make the two RPi's talk to each other
+- [x] Glue gun - Glue the s--t out of everything
+- [x] Get weather data from openweathermap.org to display and log. Could be interesting to see how much outside temperatures affects the amount of watering needed.
+- [x] Message me when the water tank needs refill. Now, the pump is on for 3 seconds. That's enough for 10 waterings.
