@@ -644,22 +644,23 @@ def tweet_follow():
 		pass
 
 def tweet_auto():
-	f = open('tweetid.txt','r')
-	tweetID = (f.read())
-	f.close()
-
-	consumer_key = conf['twitter']['consumer_key']
-	consumer_secret = conf['twitter']['consumer_secret']
-	access_token = conf['twitter']['access_token']
-	access_token_secret = conf['twitter']['access_token_secret']
-
-	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-	auth.set_access_token(access_token, access_token_secret)
-	api = tweepy.API(auth)
 
 	global ledSwitch
 
 	while True:
+		f = open('tweetid.txt','r')
+		tweetID = (f.read())
+		f.close()
+
+		consumer_key = conf['twitter']['consumer_key']
+		consumer_secret = conf['twitter']['consumer_secret']
+		access_token = conf['twitter']['access_token']
+		access_token_secret = conf['twitter']['access_token_secret']
+
+		auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+		auth.set_access_token(access_token, access_token_secret)
+		api = tweepy.API(auth)
+
 		tweetFetched = api.user_timeline(screen_name = "mickekring", count = 1)
 
 		for status in tweetFetched:
@@ -734,7 +735,7 @@ def tweet_auto():
 				else:
 					pass
 
-		time.sleep(40)
+		time.sleep(20)
 
 ### SMS
 
