@@ -742,11 +742,17 @@ def tweet_follow():
 		
 		Thread(target = led_red_alert).start()
 		
-		tts = gTTS(text="Warning. Twitter error. Unable to follow twitter users." , lang='en')
-		tts.save("twitter_follow_error.mp3")
-		os.system("mpg321 -q twitter_follow_error.mp3")
-		os.system("mpg321 -q vader_breathe.mp3")
-		os.system("mpg321 -q vader_dont_fail.mp3")
+		try:
+			tts = gTTS(text="Warning. Twitter error. Unable to follow twitter users." , lang='en')
+			tts.save("twitter_follow_error.mp3")
+			os.system("mpg321 -q twitter_follow_error.mp3")
+			os.system("mpg321 -q vader_breathe.mp3")
+			os.system("mpg321 -q vader_dont_fail.mp3")
+		except:
+			os.system("mpg321 -q twitter_follow_error.mp3")
+			os.system("mpg321 -q vader_breathe.mp3")
+			os.system("mpg321 -q vader_dont_fail.mp3")
+			pass
 		
 		ledSwitch = 0
 		time.sleep(2)
