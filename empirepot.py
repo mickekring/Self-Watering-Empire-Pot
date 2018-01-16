@@ -68,24 +68,24 @@ GPIO.setup(relay, GPIO.OUT)
 cpu = CPUTemperature()
 
 # Misc Variables
-pause_time = 0.001
-ledSwitch = 0
-waterLevel = 0
-tankFull = 10
+pause_time = 0.001 # PWM 
+ledSwitch = 0 # 1 or 0 used for rolling leds on or off
+waterLevel = 0 # Used for stats logging to csv to show 0 if no watering och 100 if watered
+tankFull = 10 # Number of times the pot can be watered with full tank
 
 # Fail safe
-todaysDate = strftime("%d")
-timesWateredToday = 0
-waterError = 0
+todaysDate = strftime("%d") # Sets todays date for comparison
+timesWateredToday = 0 # Number of times pot has been watered today
+waterError = 0 # Used as bolean if pot has been watered
 # / Fail safe
 
 # Stores and opens date/time when last watered
-f = open('lastwatered.txt','r')
-lastWatered = (f.read())
-f.close()
+f = open('lastwatered.txt','r') # Opens external file for logging last watered date
+lastWatered = (f.read()) # Sets variable for use displaying status
+f.close() # Closes file
 
 # Loading credentials
-conf = yaml.load(open("credentials.yml"))
+conf = yaml.load(open("credentials.yml")) # External file with all credentials
 
 ### FUNCTIONS ###
 
@@ -438,9 +438,9 @@ def water_reading():
 				time.sleep(2)
 		
 		elif dateNow != todaysDate:
-			todaysDate = strftime("%d")
 			timesWateredToday = 0
 			waterError = 0
+			todaysDate = strftime("%d")
 			logging()
 			water_reading()
 
@@ -680,7 +680,11 @@ def fileupload_stats():
 		filepath = "stats.csv"
 		localpath = "/home/pi/kod/empirebot/stats.csv"
 
+		filepath2 = "error_log.csv"
+		localpath2 = "/home/pi/kod/empirebot/error_log.csv"
+
 		sftp.put(localpath, filepath)
+		sftp.put(localpath2, filepath2)
 
 		sftp.close()
 		transport.close()
@@ -864,7 +868,7 @@ def tweet_auto():
 					else:
 						pass
 
-			time.sleep(50)
+			time.sleep(65)
 
 	except:
 		with open("error_log.csv", "a") as error_log:
@@ -979,19 +983,28 @@ def audio_vol_none():
 def Main():
 	try:
 		print("---SYSTEM START UP---")
+		
 		button_delay = 0.2
 		led_off()
 		GPIO.output(hygro_Power, False)
+		
 		audio_vol_full()
 		self_diagnostics()
 		temp_humidity()
-		Thread(target = tweet_auto).start()
 		fileupload_init()
+		
+		t1 = threading.Thread(target = tweet_auto)
+		t1.daemon = True
+		t1.start()
 		
 		while True:
 			tweet_follow()
 			water_reading()
 			time.sleep(1800)
+
+	except:
+		with open("error_log.csv", "a") as error_log:
+			error_log.write("\n{0},Error,Main program ended".format(strftime("%Y-%m-%d %H:%M:%S")))
 
 	finally:
 		print("GPIO Clean up")
