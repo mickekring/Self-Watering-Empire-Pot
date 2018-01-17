@@ -762,119 +762,117 @@ def tweet_follow():
 def tweet_auto():
 	global ledSwitch
 
+	consumer_key = conf['twitter']['consumer_key']
+	consumer_secret = conf['twitter']['consumer_secret']
+	access_token = conf['twitter']['access_token']
+	access_token_secret = conf['twitter']['access_token_secret']
+
+	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+	auth.set_access_token(access_token, access_token_secret)
+	api = tweepy.API(auth)
+
 	try:
 		while True:
 			f = open('tweetid.txt','r')
 			tweetID = (f.read())
 			f.close()
 
-			consumer_key = conf['twitter']['consumer_key']
-			consumer_secret = conf['twitter']['consumer_secret']
-			access_token = conf['twitter']['access_token']
-			access_token_secret = conf['twitter']['access_token_secret']
+			for status in tweepy.Cursor(api.user_timeline, screen_name="mickekring").items(1):
+			    tweetTextFetched = (status._json["text"])
+			    tweetIDFetched = str((status._json["id"]))
 
-			auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-			auth.set_access_token(access_token, access_token_secret)
-			api = tweepy.API(auth)
-
-			tweetFetched = api.user_timeline(screen_name = "mickekring", count = 1)
-
-			for status in tweetFetched:
-				tweetTextFetched = (status.text)
-				tweetIDFetched = str(status.id)
-
-				if tweetIDFetched == tweetID:
-					pass
+			if tweetIDFetched == tweetID:
+				pass
+			
+			else:
+				tweetID = tweetIDFetched
 				
-				else:
-					tweetID = tweetIDFetched
+				f = open('tweetid.txt', 'w')
+				f.write(str(tweetID))
+				f.close()
+				
+				tweetText = tweetTextFetched.lower()
+				
+				if "@empireplantbot" in tweetText:
+					ledSwitch = 1
 					
-					f = open('tweetid.txt', 'w')
-					f.write(str(tweetID))
-					f.close()
+					Thread(target = led_rolling).start()
 					
-					tweetText = tweetTextFetched.lower()
+					tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
+					tts.save("incoming_tweet.mp3")
+					os.system("mpg321 -q incoming_tweet.mp3")
+					tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
+					tts.save("responding_tweet.mp3")
+					os.system("mpg321 -q responding_tweet.mp3")
 					
-					if "@empireplantbot" in tweetText:
-						ledSwitch = 1
+					ledSwitch = 0
+					time.sleep(2)
+					ledSwitch = 1
+					
+					Thread(target = led_red_alert).start()
+					
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_yes.mp3")
+					
+					ledSwitch = 0
+					time.sleep(2)
+					
+					with open("error_log.csv", "a") as error_log:
+						error_log.write("\n{0},Alert,Twitter message recieved".format(strftime("%Y-%m-%d %H:%M:%S")))
+					
+					if "status" in tweetText:
+						temp_humidity()
 						
-						Thread(target = led_rolling).start()
-						
-						tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
-						tts.save("incoming_tweet.mp3")
-						os.system("mpg321 -q incoming_tweet.mp3")
-						tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
-						tts.save("responding_tweet.mp3")
-						os.system("mpg321 -q responding_tweet.mp3")
-						
-						ledSwitch = 0
-						time.sleep(2)
-						ledSwitch = 1
-						
-						Thread(target = led_red_alert).start()
-						
-						os.system("mpg321 -q vader_breathe.mp3")
-						os.system("mpg321 -q vader_yes.mp3")
-						
-						ledSwitch = 0
-						time.sleep(2)
+						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\n" + lastWatered), in_reply_to_status_id = (tweetIDFetched))
 						
 						with open("error_log.csv", "a") as error_log:
-							error_log.write("\n{0},Alert,Twitter message recieved".format(strftime("%Y-%m-%d %H:%M:%S")))
+							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+					
+					elif "who" and "are" in tweetText:
+						api.update_status(status = "I am an automated plant pot, @mickekring", in_reply_to_status_id = (tweetIDFetched))
 						
-						if "status" in tweetText:
-							temp_humidity()
-							
-							api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\n" + lastWatered), in_reply_to_status_id = (tweetIDFetched))
-							
-							with open("error_log.csv", "a") as error_log:
-								error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+					
+					elif "refill" in tweetText:
+						tankFull = 10
 						
-						elif "who" and "are" in tweetText:
-							api.update_status(status = "I am an automated plant pot, @mickekring", in_reply_to_status_id = (tweetIDFetched))
-							
-							with open("error_log.csv", "a") as error_log:
-								error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+						api.update_status(status = "Water levels are now at full again, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 						
-						elif "refill" in tweetText:
-							tankFull = 10
-							
-							api.update_status(status = "Water levels are now at full again, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
-							
-							with open("error_log.csv", "a") as error_log:
-								error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+					
+					elif "silence" in tweetText:
+						audio_vol_none()
 						
-						elif "silence" in tweetText:
-							audio_vol_none()
-							
-							api.update_status(status = "I've set speaker volume to 0%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
-							
-							with open("error_log.csv", "a") as error_log:
-								error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+						api.update_status(status = "I've set speaker volume to 0%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 						
-						elif "loud" in tweetText:
-							audio_vol_full()
-							
-							api.update_status(status = "I've set speaker volume to 100%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
-							
-							with open("error_log.csv", "a") as error_log:
-								error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+					
+					elif "loud" in tweetText:
+						audio_vol_full()
 						
-						elif "help" in tweetText:
-							
-							api.update_status(status = "Commands:\nrefill, silence, loud, status - @mickekring.", in_reply_to_status_id = (tweetIDFetched))
-							
-							with open("error_log.csv", "a") as error_log:
-								error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
-						else:
-							api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
-
-							with open("error_log.csv", "a") as error_log:
-								error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+						api.update_status(status = "I've set speaker volume to 100%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
+						
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+					
+					elif "help" in tweetText:
+						
+						api.update_status(status = "Commands:\nrefill, silence, loud, status - @mickekring.", in_reply_to_status_id = (tweetIDFetched))
+						
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 					else:
-						pass
+						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 
-			time.sleep(65)
+						with open("error_log.csv", "a") as error_log:
+							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+				else:
+					pass
+
+			time.sleep(30)
 
 	except:
 		with open("error_log.csv", "a") as error_log:
