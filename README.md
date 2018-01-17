@@ -30,6 +30,9 @@ Here you'll find short movies of the latest state of the project.<br /><br />
 * Since it's pretty internet-dependent, it will try-except ecerything if no connection is available and log it and store locally
 
 ## Updates
+* __17 jan 2018 - v1.2 - Bug hunt__<br />
+I've been running the script for a couple of days and have found some bugs. First, the script broke and stopped at midnight a couple of times. That seems to correspond to internet being down. But, since core pot functionality should keep running I've been hunting the problem. I added some more Try - Excepts. Last night, internet went down again, but the logs showed that the program continued to run. Hopefully that's that with that.<br />
+The second problem I'm dealing with is the Twitter functionality. It sorta works, but not for long. At first I thought that I've been requesting data too much and broken the Twitter limits, but that doesn't seem to be the case. So I changed method for getting user timeline and I'll monitor if that works. It seems so at the moment.
 * __07 jan 2018 - v1.2 - Fail safes__<br />
 Sometimes the moisture sensors misread or are badly tuned or are simply just worn down. To prevent over watering or similar problems, I've coded a fail safe. When watered more than two times, it will send an SMS to check problems and lock watering for the rest of that day.
 * __06 jan 2018 - v1.1 - Error logging__<br />
