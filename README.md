@@ -15,19 +15,19 @@ Here you'll find short movies of the latest state of the project.<br /><br />
 
 ## What it is and what it does
 * It's a plant pot, where a plant grows
-* It detects whether the soil is too dry, and if it is, switches on a relay which cotrols a water pump, which gives water to the plant
+* It detects whether the soil is too dry, and if it is, switches on a relay which controls a water pump, which gives water to the plant
 * It reads temperature and humidity via a sensor where the plant is
 * It grabs outside local temperature, humidity and the weather via API from openweathermap.org
 * It has a speaker and an amplifier which makes it able to "speak" via gTTS (google text to speech)
 * It has a couple of led diods, blue, red and green so it can display alerts, code greens and stuff using PWM (pulse width modulation). It also looks kind of cool
-* It sends SMS to eg warn if the tank level is low and needs a refill via Twilio
+* It sends SMS to eg warn if the tank level is low and needs a refill
 * It can send status updates and recieve commands via Twitter
-* It logs to a csv file
-* It logs stats, which it sends to a web server via SFTP
+* It logs stuff and errors to a csv file
+* It logs stats, which it sends to a web server via SFTP, where it can be displayed using http://dygraphs.com JavaScript charting library
 * It keeps me company, when alone ;)
-* It's got some fail safes, like only beeing able to water the plant for two times a day, then sends a warning SMS that something may be wrong, and it can only text that message once per day
+* It's got some fail safes if something is wrong with the sensor measuring soli moisture, like only beeing able to water the plant for two times a day, then sends a warning SMS that something may be wrong, and it can only text that message once per day
 * It's designed and 3D-printed by me, except the stormtrooper and the empire logo, which I found on Thingiverse and 3D-printed
-* Since it's pretty internet-dependent, it will try-except ecerything if no connection is available and log it and store locally
+* Since it's pretty internet-dependent, it will try-except everything if no connection is available and log it and store locally, for later upload, when it's back online again. Core functionality must keep running
 
 ## Updates
 * __17 jan 2018 - v1.2 - Bug hunt__<br />
