@@ -482,14 +482,18 @@ def logging():
 		
 		humidity, temperature = Adafruit_DHT.read_retry(11, 4)
 		
-		r = requests.get(conf['openweather']['api'])
-		json_object = r.json()
-		temp_k = json_object["main"]["temp"]
-		temp_c = (temp_k - 273.15)
-		o_humidity = json_object["main"]["humidity"]
+		try:
+			r = requests.get(conf['openweather']['api'])
+			json_object = r.json()
+			temp_k = json_object["main"]["temp"]
+			temp_c = (temp_k - 273.15)
+			o_humidity = json_object["main"]["humidity"]
+		except:
+			temp_c = 0
+			o_humidity = 0
 		
 		with open("stats.csv", "a") as log:
-			log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel), (temp_c), str(o_humidity)))
+			log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
 		fileupload_stats()
 
 	except:
@@ -771,16 +775,24 @@ def tweet_auto():
 	auth.set_access_token(access_token, access_token_secret)
 	api = tweepy.API(auth)
 
-	try:
-		while True:
-			f = open('tweetid.txt','r')
-			tweetID = (f.read())
-			f.close()
+	while True:
 
+		f = open('tweetid.txt','r')
+		tweetID = (f.read())
+		f.close()
+
+		try:
 			for status in tweepy.Cursor(api.user_timeline, screen_name="mickekring").items(1):
 			    tweetTextFetched = (status._json["text"])
 			    tweetIDFetched = str((status._json["id"]))
+			    with open("error_log.csv", "a") as error_log:
+					error_log.write("\n{0},Log,Succeded in reading twitter timeline".format(strftime("%Y-%m-%d %H:%M:%S")))
+		except:
+			with open("error_log.csv", "a") as error_log:
+				error_log.write("\n{0},Error,Reading Twitter timeline failed".format(strftime("%Y-%m-%d %H:%M:%S")))
+			pass
 
+		try:
 			if tweetIDFetched == tweetID:
 				pass
 			
@@ -871,13 +883,12 @@ def tweet_auto():
 							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 				else:
 					pass
+		except:
+			with open("error_log.csv", "a") as error_log:
+					error_log.write("\n{0},Error,Could not answer twitter message".format(strftime("%Y-%m-%d %H:%M:%S")))
+			pass
 
-			time.sleep(30)
-
-	except:
-		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0},Error,Twitter error - could not reply".format(strftime("%Y-%m-%d %H:%M:%S")))
-		pass
+		time.sleep(30)
 
 ### SMS
 
