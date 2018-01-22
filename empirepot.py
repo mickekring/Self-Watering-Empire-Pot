@@ -26,6 +26,7 @@ green_one_pin = 6
 green_two_pin = 26
 red_one_pin = 25
 red_two_pin = 16
+blue_on_off_pin = 18
 
 # GPIO Set mode to BCM instead of Board
 GPIO.setmode(GPIO.BCM)
@@ -38,6 +39,7 @@ GPIO.setup(green_one_pin, GPIO.OUT)
 GPIO.setup(green_two_pin, GPIO.OUT)
 GPIO.setup(red_one_pin, GPIO.OUT)
 GPIO.setup(red_two_pin, GPIO.OUT)
+GPIO.setup(blue_on_off_pin, GPIO.OUT)
 
 # Led PWM - Pulse width modulation - for pulsating lights
 blue_one = GPIO.PWM(blue_one_pin, 100)
@@ -47,6 +49,7 @@ green_one = GPIO.PWM(green_one_pin, 100)
 green_two = GPIO.PWM(green_two_pin, 100)
 red_one = GPIO.PWM(red_one_pin, 100)
 red_two = GPIO.PWM(red_two_pin, 100)
+blue_on_off = GPIO.PWM(blue_on_off_pin, 100)
 
 # Sets the diod to start at 0 - which means off
 blue_one.start(0)
@@ -56,6 +59,7 @@ green_one.start(0)
 green_two.start(0)
 red_one.start(0)
 red_two.start(0)
+blue_on_off.start(0)
 
 # Hygro reader setup
 GPIO.setup(hygro, GPIO.IN)
@@ -128,6 +132,11 @@ def led_blue():
 	blue_one.ChangeDutyCycle(100)
 	blue_two.ChangeDutyCycle(100)
 	blue_three.ChangeDutyCycle(100)
+
+def led_power():
+	with open("error_log.csv", "a") as error_log:
+		error_log.write("\n{0},Log,Power led on".format(strftime("%Y-%m-%d %H:%M:%S")))
+	blue_on_off.ChangeDutyCycle(80)
 
 # All leds off
 def led_off():
@@ -262,6 +271,7 @@ def water_reading():
 		os.system("mpg321 -q moisture.mp3")
 	except:
 		os.system("mpg321 -q moisture.mp3")
+		internet_on()
 		pass
 	
 	GPIO.output(hygro_Power, True)
@@ -276,6 +286,7 @@ def water_reading():
 			tts.save("test.mp3")
 			os.system("mpg321 -q test.mp3")
 		except:
+			internet_on()
 			pass
 		time.sleep(2)
 
@@ -298,6 +309,7 @@ def water_reading():
 			os.system("mpg321 -q green.mp3")
 		except:
 			os.system("mpg321 -q green.mp3")
+			internet_on()
 			pass
 
 		logging()
@@ -322,6 +334,7 @@ def water_reading():
 					os.system("mpg321 -q red.mp3")
 				except:
 					os.system("mpg321 -q red.mp3")
+					internet_on()
 					pass
 				time.sleep(1)
 
@@ -333,6 +346,7 @@ def water_reading():
 					os.system("mpg321 -q water.mp3")
 				except:
 					os.system("mpg321 -q water.mp3")
+					internet_on()
 					pass
 				
 				water_pump()
@@ -350,6 +364,7 @@ def water_reading():
 						os.system("mpg321 -q tankempty.mp3")
 					except:
 						os.system("mpg321 -q tankempty.mp3")
+						internet_on()
 						pass
 					
 					ledSwitch = 0
@@ -375,6 +390,7 @@ def water_reading():
 					os.system("mpg321 -q retest.mp3")
 				except:
 					os.system("mpg321 -q retest.mp3")
+					internet_on()
 					pass
 				
 				ledSwitch = 0
@@ -400,6 +416,7 @@ def water_reading():
 					os.system("mpg321 -q sensors.mp3")
 					os.system("mpg321 -q vader_breathe.mp3")
 					os.system("mpg321 -q vader_dont_fail.mp3")
+					internet_on()
 					pass
 				
 				sms_moisture_warning()
@@ -429,6 +446,7 @@ def water_reading():
 					os.system("mpg321 -q sensors.mp3")
 					os.system("mpg321 -q vader_breathe.mp3")
 					os.system("mpg321 -q vader_dont_fail.mp3")
+					internet_on()
 					pass
 				
 				ledSwitch = 0
@@ -471,6 +489,7 @@ def temp_humidity():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Failed reading temp and humidity".format(strftime("%Y-%m-%d %H:%M:%S")))
+		internet_on()
 		pass
 
 ### Logging of statistics
@@ -489,8 +508,9 @@ def logging():
 			temp_c = (temp_k - 273.15)
 			o_humidity = json_object["main"]["humidity"]
 		except:
-			temp_c = 0
-			o_humidity = 0
+			temp_c = None
+			o_humidity = None
+			internet_on()
 		
 		with open("stats.csv", "a") as log:
 			log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
@@ -499,6 +519,7 @@ def logging():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Failed gathering stats for logging.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		internet_on()
 		pass
 
 ### Status update with diagnostics
@@ -706,11 +727,17 @@ def fileupload_stats():
 		
 		Thread(target = led_red_alert).start()
 		
-		tts = gTTS(text="Warning. Status file error uploading." , lang='en')
-		tts.save("upload_error.mp3")
-		os.system("mpg321 -q upload_error.mp3")
-		os.system("mpg321 -q vader_breathe.mp3")
-		os.system("mpg321 -q vader_dont_fail.mp3")
+		try:
+			tts = gTTS(text="Warning. Status file error uploading." , lang='en')
+			tts.save("upload_error.mp3")
+			os.system("mpg321 -q upload_error.mp3")
+			os.system("mpg321 -q vader_breathe.mp3")
+			os.system("mpg321 -q vader_dont_fail.mp3")
+		except:
+			os.system("mpg321 -q upload_error.mp3")
+			os.system("mpg321 -q vader_breathe.mp3")
+			os.system("mpg321 -q vader_dont_fail.mp3")
+			pass
 		
 		ledSwitch = 0
 		time.sleep(2)
@@ -783,13 +810,14 @@ def tweet_auto():
 
 		try:
 			for status in tweepy.Cursor(api.user_timeline, screen_name="mickekring").items(1):
-			    tweetTextFetched = (status._json["text"])
-			    tweetIDFetched = str((status._json["id"]))
-			    with open("error_log.csv", "a") as error_log:
+				tweetTextFetched = (status._json["text"])
+				tweetIDFetched = str((status._json["id"]))
+				with open("error_log.csv", "a") as error_log:
 					error_log.write("\n{0},Log,Succeded in reading twitter timeline".format(strftime("%Y-%m-%d %H:%M:%S")))
 		except:
 			with open("error_log.csv", "a") as error_log:
 				error_log.write("\n{0},Error,Reading Twitter timeline failed".format(strftime("%Y-%m-%d %H:%M:%S")))
+			internet_on()
 			pass
 
 		try:
@@ -810,12 +838,16 @@ def tweet_auto():
 					
 					Thread(target = led_rolling).start()
 					
-					tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
-					tts.save("incoming_tweet.mp3")
-					os.system("mpg321 -q incoming_tweet.mp3")
-					tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
-					tts.save("responding_tweet.mp3")
-					os.system("mpg321 -q responding_tweet.mp3")
+					try:
+						tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
+						tts.save("incoming_tweet.mp3")
+						os.system("mpg321 -q incoming_tweet.mp3")
+						tts = gTTS(text="Lord Vader. Respond to tweet." , lang='en')
+						tts.save("responding_tweet.mp3")
+						os.system("mpg321 -q responding_tweet.mp3")
+					except:
+						os.system("mpg321 -q responding_tweet.mp3")
+						pass
 					
 					ledSwitch = 0
 					time.sleep(2)
@@ -838,13 +870,13 @@ def tweet_auto():
 						api.update_status(status = ("@mickekring\n" + (tweetMessage) + "\n\n" + lastWatered), in_reply_to_status_id = (tweetIDFetched))
 						
 						with open("error_log.csv", "a") as error_log:
-							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+							error_log.write("\n{0},Alert,Status twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 					
 					elif "who" and "are" in tweetText:
 						api.update_status(status = "I am an automated plant pot, @mickekring", in_reply_to_status_id = (tweetIDFetched))
 						
 						with open("error_log.csv", "a") as error_log:
-							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+							error_log.write("\n{0},Alert,Who - twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 					
 					elif "refill" in tweetText:
 						tankFull = 10
@@ -852,7 +884,7 @@ def tweet_auto():
 						api.update_status(status = "Water levels are now at full again, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 						
 						with open("error_log.csv", "a") as error_log:
-							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+							error_log.write("\n{0},Alert,Top up refill twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 					
 					elif "silence" in tweetText:
 						audio_vol_none()
@@ -860,7 +892,7 @@ def tweet_auto():
 						api.update_status(status = "I've set speaker volume to 0%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 						
 						with open("error_log.csv", "a") as error_log:
-							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+							error_log.write("\n{0},Alert,Audio silence twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 					
 					elif "loud" in tweetText:
 						audio_vol_full()
@@ -868,14 +900,14 @@ def tweet_auto():
 						api.update_status(status = "I've set speaker volume to 100%, @mickekring. ", in_reply_to_status_id = (tweetIDFetched))
 						
 						with open("error_log.csv", "a") as error_log:
-							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+							error_log.write("\n{0},Alert,Audio full twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 					
 					elif "help" in tweetText:
 						
 						api.update_status(status = "Commands:\nrefill, silence, loud, status - @mickekring.", in_reply_to_status_id = (tweetIDFetched))
 						
 						with open("error_log.csv", "a") as error_log:
-							error_log.write("\n{0},Alert,Twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
+							error_log.write("\n{0},Alert,Help twitter message sent".format(strftime("%Y-%m-%d %H:%M:%S")))
 					else:
 						api.update_status(status = "I'm sorry but I don't understand, @mickekring. Please enhance my software.", in_reply_to_status_id = (tweetIDFetched))
 
@@ -886,22 +918,12 @@ def tweet_auto():
 		except:
 			with open("error_log.csv", "a") as error_log:
 					error_log.write("\n{0},Error,Could not answer twitter message".format(strftime("%Y-%m-%d %H:%M:%S")))
+			internet_on()
 			pass
 
 		time.sleep(30)
 
 ### SMS
-
-def sms():
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Sending status SMS.".format(strftime("%Y-%m-%d %H:%M:%S")))
-	account_sid = conf["twilio"]["account_sid"]
-	auth_token = conf["twilio"]["auth_token"]
-	client = Client(account_sid, auth_token)
-	message = client.messages.create(
-		to= conf["twilio"]["to_phone_number"],
-		from_= conf["twilio"]["from_phone_number"],
-		body=tweetMessage + "\n" + lastWatered)
 
 def sms_tank_warning():
 	try:
@@ -919,6 +941,7 @@ def sms_tank_warning():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Failed sending tank warning SMS".format(strftime("%Y-%m-%d %H:%M:%S")))
+		internet_on()
 		pass
 
 def sms_moisture_warning():
@@ -937,6 +960,7 @@ def sms_moisture_warning():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Failed sending moisture sensor warning SMS".format(strftime("%Y-%m-%d %H:%M:%S")))
+		internet_on()
 		pass
 
 ### Audio controls
@@ -959,6 +983,7 @@ def audio_vol_full():
 		os.system("mpg321 -q audio_full.mp3")
 	except:
 		os.system("mpg321 -q audio_full.mp3")
+		internet_on()
 		pass
 	
 	os.system("mpg321 -q vader_yes.mp3")
@@ -978,6 +1003,7 @@ def audio_vol_none():
 		os.system("mpg321 -q audio_zero.mp3")
 	except:
 		os.system("mpg321 -q audio_zero.mp3")
+		internet_on()
 		pass
 	
 	os.system("mpg321 -q vader_breathe.mp3")
@@ -997,6 +1023,7 @@ def audio_vol_none():
 
 def Main():
 	try:
+		led_power()
 		print("---SYSTEM START UP---")
 		
 		button_delay = 0.2
