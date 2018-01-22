@@ -4,7 +4,7 @@ When the soil moisture levels are below a certain number a water pump will pump 
 So why "empire"? Well, I wanted to throw a bit of Star Wars at it. :)__
 
 ## Work in progress - working!
-__11 jan 2018:__ This project is a work in progress but it's now up and running to iron out some bugs and quirks. Check updates for more information.
+__22 jan 2018:__ This project is now up and running with all the bugs taken care of. It will still be sort of a work in progress. I may still add functionality.
 
 ## Disclaimer
 My Python skills are at best on a beginners level so I'll gladly take on any good advice. But what you see is what you get. I'm not better than this.
@@ -30,6 +30,8 @@ Here you'll find short movies of the latest state of the project.<br /><br />
 * Since it's pretty internet-dependent, it will try-except everything if no connection is available and log it and store locally, for later upload, when it's back online again. Core functionality must keep running
 
 ## Updates
+* __22 jan 2018 - v1.3 - Added power LED and up and running__<br/>
+All the bugs have been taken care of and the pot has been running flawlessly for a couple of days now. I also added an power LED to the water tank module so that I know that the project is powered. That's that with the hardware for now. Next on the list is to make a short video demoing the project.
 * __17 jan 2018 - v1.2 - Bug hunt__<br />
 I've been running the script for a couple of days and have found some bugs. First, the script broke and stopped at midnight a couple of times. That seems to correspond to internet being down. But, since core pot functionality should keep running I've been hunting the problem. I added some more Try - Excepts. Last night, internet went down again, but the logs showed that the program continued to run. Hopefully that's that with that.<br />
 The second problem I'm dealing with is the Twitter functionality. It sorta works, but not for long. At first I thought that I've been requesting data too much and broken the Twitter limits, but that doesn't seem to be the case. So I changed method for getting user timeline and I'll monitor if that works. It seems so at the moment.
@@ -104,8 +106,8 @@ This is sort of what I want out of the project. As I get new ideas, this will gr
 - [x] Temperature sensor - record temperature near the plant for statistics
 - [x] Humidity sensor - record humidity near the plant for statistics
 - [x] Soil moisture sensor - to sense whether the plant needs water or not
-- [ ] Light sensor - record the amount of light the plant gets
-- [ ] Proximity sensor - Sense when people are near the plant for automatic status updates
+- [x] ~~Light sensor - record the amount of light the plant gets~~ That will be for another project...
+- [x] ~~Proximity sensor - Sense when people are near the plant for automatic status updates~~ That will be for another project...
 - [x] PWM - Pulse Width Modulation - for a pulsating light effect when red and green alert and for blue when pot is speaking
 - [x] Check internet connection and warn if off
 - [x] Log sensory inputs in a csv-file
