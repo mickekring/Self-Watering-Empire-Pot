@@ -98,8 +98,6 @@ conf = yaml.load(open("credentials.yml")) # External file with all credentials
 # All leds on
 def led_all_on():
 	led_off()
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,All leds on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	blue_one.ChangeDutyCycle(10)
 	blue_two.ChangeDutyCycle(10)
 	blue_three.ChangeDutyCycle(10)
@@ -111,37 +109,27 @@ def led_all_on():
 # Red leds on
 def led_red():
 	led_off()
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Red leds on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	red_one.ChangeDutyCycle(100)
 	red_two.ChangeDutyCycle(100)
 
 # Green leds on
 def led_green():
 	led_off()
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Green leds on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	green_one.ChangeDutyCycle(100)
 	green_two.ChangeDutyCycle(100)
 
 # Blue leds on
 def led_blue():
 	led_off()
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Blue leds on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	blue_one.ChangeDutyCycle(100)
 	blue_two.ChangeDutyCycle(100)
 	blue_three.ChangeDutyCycle(100)
 
 def led_power():
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Power led on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	blue_on_off.ChangeDutyCycle(80)
 
 # All leds off
 def led_off():
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,All leds off".format(strftime("%Y-%m-%d %H:%M:%S")))
 	blue_one.ChangeDutyCycle(0)
 	blue_two.ChangeDutyCycle(0)
 	blue_three.ChangeDutyCycle(0)
@@ -153,8 +141,6 @@ def led_off():
 # Red leds rolling lights
 def led_red_alert():
 	led_off()
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Rolling red alert leds on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	try:
 		while True:
 			if ledSwitch == 1:
@@ -179,8 +165,6 @@ def led_red_alert():
 # Green leds rolling lights
 def led_green_alert():
 	led_off()
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Rolling green alert leds on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	try:
 		while True:
 			if ledSwitch == 1:
@@ -205,8 +189,6 @@ def led_green_alert():
 # Blue leds rolling lights
 def led_rolling():
 	led_off()
-	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Rolling blue alert leds on".format(strftime("%Y-%m-%d %H:%M:%S")))
 	try:
 		while True:
 			if ledSwitch == 1:
@@ -264,6 +246,8 @@ def water_reading():
 	ledSwitch = 1
 	
 	Thread(target = led_rolling).start()
+
+	os.system("mpg321 -q emp_march_top.mp3")
 	
 	try:
 		tts = gTTS(text="Alert! Testing soil moisture levels in T minus two seconds." , lang='en')
@@ -324,9 +308,6 @@ def water_reading():
 				timesWateredToday += 1
 
 				Thread(target = led_red_alert).start()
-				
-				with open("error_log.csv", "a") as error_log:
-						error_log.write("\n{0},Alert,Watering protocols will now engage".format(strftime("%Y-%m-%d %H:%M:%S")))
 				
 				try:
 					tts = gTTS(text="Alert. Code red. Watering protocols will now engage." , lang='en')
@@ -812,8 +793,6 @@ def tweet_auto():
 			for status in tweepy.Cursor(api.user_timeline, screen_name="mickekring").items(1):
 				tweetTextFetched = (status._json["text"])
 				tweetIDFetched = str((status._json["id"]))
-				with open("error_log.csv", "a") as error_log:
-					error_log.write("\n{0},Log,Succeded in reading twitter timeline".format(strftime("%Y-%m-%d %H:%M:%S")))
 		except:
 			with open("error_log.csv", "a") as error_log:
 				error_log.write("\n{0},Error,Reading Twitter timeline failed".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -839,6 +818,7 @@ def tweet_auto():
 					Thread(target = led_rolling).start()
 					
 					try:
+						os.system("mpg321 -q emp_march_top.mp3")
 						tts = gTTS(text="Alert. Incoming Tweet. Message recieved... {0}".format(tweetTextFetched) , lang='en')
 						tts.save("incoming_tweet.mp3")
 						os.system("mpg321 -q incoming_tweet.mp3")
@@ -846,6 +826,7 @@ def tweet_auto():
 						tts.save("responding_tweet.mp3")
 						os.system("mpg321 -q responding_tweet.mp3")
 					except:
+						os.system("mpg321 -q emp_march_top.mp3")
 						os.system("mpg321 -q responding_tweet.mp3")
 						pass
 					
@@ -1019,11 +1000,18 @@ def audio_vol_none():
 	current_volume = m.getvolume()
 	m.setvolume(0)
 
+def emp_march():
+	os.system("mpg321 -q emp_march_lo.mp3")
+
 #################### MAIN PROGRRAM #################################
 
 def Main():
 	try:
 		led_power()
+
+		t2 = threading.Thread(target = emp_march)
+		t2.start()
+		
 		print("---SYSTEM START UP---")
 		
 		button_delay = 0.2
