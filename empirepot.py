@@ -476,34 +476,32 @@ def temp_humidity():
 ### Logging of statistics
 
 def logging():
-	try:
-		with open("error_log.csv", "a") as error_log:
+	
+	with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Log,Gathering stats for logging.".format(strftime("%Y-%m-%d %H:%M:%S")))
-		
-		humidity, temperature = Adafruit_DHT.read_retry(11, 4)
-		
-		try:
-			r = requests.get(conf['openweather']['api'])
-			json_object = r.json()
-			temp_k = json_object["main"]["temp"]
-			temp_c = (temp_k - 273.15)
-			o_humidity = json_object["main"]["humidity"]
-		except:
-			temp_c = None
-			o_humidity = None
-			with open("error_log.csv", "a") as error_log:
-				error_log.write("\n{0},Error,Could not connect to openweather API.".format(strftime("%Y-%m-%d %H:%M:%S")))
-			pass
-		
-		with open("stats.csv", "a") as log:
-			log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
-		fileupload_stats()
 
+	humidity, temperature = Adafruit_DHT.read_retry(11, 4)
+		
+	try:
+		r = requests.get(conf['openweather']['api'])
+		json_object = r.json()
+		temp_k = json_object["main"]["temp"]
+		temp_c = (temp_k - 273.15)
+		o_humidity = json_object["main"]["humidity"]
 	except:
+		temp_c = None
+		o_humidity = None
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0},Error,Failed gathering stats for logging.".format(strftime("%Y-%m-%d %H:%M:%S")))
-		internet_on()
+			error_log.write("\n{0},Error,Could not connect to openweather API.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		pass
+	
+	with open("stats.csv", "a") as log:
+		log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
+	
+	with open("error_log.csv", "a") as error_log:
+		error_log.write("\n{0},Log,Stats gathered. Sending stats to upload.".format(strftime("%Y-%m-%d %H:%M:%S")))
+	
+	fileupload_stats()
 
 ### Status update with diagnostics
 
