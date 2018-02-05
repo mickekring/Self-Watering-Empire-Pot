@@ -231,7 +231,7 @@ def water_pump():
 def water_reading():
 	led_off()
 	with open("error_log.csv", "a") as error_log:
-		error_log.write("\n{0},Log,Water reading started.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		error_log.write("\n{0},Log,Soil moisture reading started.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	
 	global dateNow
 	global todaysDate
@@ -359,8 +359,8 @@ def water_reading():
 				f.write(lastWatered)
 				f.close()
 				
-				time.sleep(2)
 				logging()
+				time.sleep(10)
 				
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Log,Moisture levels will now be re-tested".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -491,7 +491,9 @@ def logging():
 		except:
 			temp_c = None
 			o_humidity = None
-			internet_on()
+			with open("error_log.csv", "a") as error_log:
+				error_log.write("\n{0},Error,Could not connect to openweather API.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			pass
 		
 		with open("stats.csv", "a") as log:
 			log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
@@ -774,16 +776,16 @@ def tweet_follow():
 def tweet_auto():
 	global ledSwitch
 
-	consumer_key = conf['twitter']['consumer_key']
-	consumer_secret = conf['twitter']['consumer_secret']
-	access_token = conf['twitter']['access_token']
-	access_token_secret = conf['twitter']['access_token_secret']
-
-	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-	auth.set_access_token(access_token, access_token_secret)
-	api = tweepy.API(auth)
-
 	while True:
+
+		consumer_key = conf['twitter']['consumer_key']
+		consumer_secret = conf['twitter']['consumer_secret']
+		access_token = conf['twitter']['access_token']
+		access_token_secret = conf['twitter']['access_token_secret']
+
+		auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+		auth.set_access_token(access_token, access_token_secret)
+		api = tweepy.API(auth)
 
 		f = open('tweetid.txt','r')
 		tweetID = (f.read())
@@ -796,7 +798,6 @@ def tweet_auto():
 		except:
 			with open("error_log.csv", "a") as error_log:
 				error_log.write("\n{0},Error,Reading Twitter timeline failed".format(strftime("%Y-%m-%d %H:%M:%S")))
-			internet_on()
 			pass
 
 		try:
@@ -899,10 +900,10 @@ def tweet_auto():
 		except:
 			with open("error_log.csv", "a") as error_log:
 					error_log.write("\n{0},Error,Could not answer twitter message".format(strftime("%Y-%m-%d %H:%M:%S")))
-			internet_on()
+			#internet_on()
 			pass
 
-		time.sleep(30)
+		time.sleep(60)
 
 ### SMS
 
