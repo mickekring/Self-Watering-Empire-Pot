@@ -9,9 +9,9 @@ __22 jan 2018:__ This project is now up and running with all the bugs taken care
 ## Disclaimer
 My Python skills are at best on a beginners level so I'll gladly take on any good advice. But what you see is what you get. I'm not better than this.
 
-## Where I'm at - at the moment
-Here you'll find short movies of the latest state of the project.<br /><br />
-[![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/2018-01-04.jpg "Latest state")](https://vimeo.com/249696012)
+## Where I'm at - at the moment - startup sequence
+The project is more or less finnished and I'm currently making a demo movie. Here's the startup sequence for the plant pot.<br /><br />
+[![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/demo_preview.png "Latest state")](https://vimeo.com/249696012)
 
 ## What it is and what it does
 * It's a plant pot, where a plant grows
