@@ -11,7 +11,7 @@ My Python skills are at best on a beginners level so I'll gladly take on any goo
 
 ## Where I'm at - at the moment - startup sequence
 The project is more or less finnished and I'm currently making a demo movie. Here's the startup sequence for the plant pot.<br /><br />
-[![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/demo_preview.png "Latest state")](https://vimeo.com/249696012)
+[![](https://github.com/mickekring/Self-Watered-Empire-Pot/blob/master/images/demo_preview.png "Latest state")](https://youtu.be/5gap21GkFwc)
 
 ## What it is and what it does
 * It's a plant pot, where a plant grows
