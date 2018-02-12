@@ -77,6 +77,8 @@ ledSwitch = 0 # 1 or 0 used for rolling leds on or off
 waterLevel = 0 # Used for stats logging to csv to show 0 if no watering och 100 if watered
 tankFull = 10 # Number of times the pot can be watered with full tank
 
+connected = 0
+
 # Fail safe
 todaysDate = strftime("%d") # Sets todays date for comparison
 timesWateredToday = 0 # Number of times pot has been watered today
@@ -254,8 +256,7 @@ def water_reading():
 		tts.save("moisture.mp3")
 		os.system("mpg321 -q moisture.mp3")
 	except:
-		os.system("mpg321 -q moisture.mp3")
-		internet_on()
+		os.system("mpg321 -q moisture_backup.mp3")
 		pass
 	
 	GPIO.output(hygro_Power, True)
@@ -270,7 +271,7 @@ def water_reading():
 			tts.save("test.mp3")
 			os.system("mpg321 -q test.mp3")
 		except:
-			internet_on()
+			os.system("mpg321 -q test_backup.mp3")
 			pass
 		time.sleep(2)
 
@@ -292,13 +293,13 @@ def water_reading():
 			tts.save("green.mp3")
 			os.system("mpg321 -q green.mp3")
 		except:
-			os.system("mpg321 -q green.mp3")
-			internet_on()
+			os.system("mpg321 -q green_backup.mp3")
 			pass
 
-		logging()
 		ledSwitch = 0
 		time.sleep(2)
+
+		logging()
 
 	elif waterNeed > 1:
 		if dateNow == todaysDate:
@@ -314,8 +315,7 @@ def water_reading():
 					tts.save("red.mp3")
 					os.system("mpg321 -q red.mp3")
 				except:
-					os.system("mpg321 -q red.mp3")
-					internet_on()
+					os.system("mpg321 -q red_backup.mp3")
 					pass
 				time.sleep(1)
 
@@ -326,8 +326,7 @@ def water_reading():
 					tts.save("water.mp3")
 					os.system("mpg321 -q water.mp3")
 				except:
-					os.system("mpg321 -q water.mp3")
-					internet_on()
+					os.system("mpg321 -q water_backup.mp3")
 					pass
 				
 				water_pump()
@@ -344,8 +343,7 @@ def water_reading():
 						tts.save("tankempty.mp3")
 						os.system("mpg321 -q tankempty.mp3")
 					except:
-						os.system("mpg321 -q tankempty.mp3")
-						internet_on()
+						os.system("mpg321 -q tankempty_backup.mp3")
 						pass
 					
 					ledSwitch = 0
@@ -359,8 +357,9 @@ def water_reading():
 				f.write(lastWatered)
 				f.close()
 				
-				logging()
 				time.sleep(10)
+
+				logging()
 				
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Log,Moisture levels will now be re-tested".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -370,8 +369,7 @@ def water_reading():
 					tts.save("retest.mp3")
 					os.system("mpg321 -q retest.mp3")
 				except:
-					os.system("mpg321 -q retest.mp3")
-					internet_on()
+					os.system("mpg321 -q retest_backup.mp3")
 					pass
 				
 				ledSwitch = 0
@@ -394,10 +392,9 @@ def water_reading():
 					os.system("mpg321 -q vader_breathe.mp3")
 					os.system("mpg321 -q vader_dont_fail.mp3")
 				except:
-					os.system("mpg321 -q sensors.mp3")
+					os.system("mpg321 -q sensors_backup.mp3")
 					os.system("mpg321 -q vader_breathe.mp3")
 					os.system("mpg321 -q vader_dont_fail.mp3")
-					internet_on()
 					pass
 				
 				sms_moisture_warning()
@@ -405,10 +402,11 @@ def water_reading():
 				ledSwitch = 0
 				waterError = 1
 				waterLevel = 0
+
+				time.sleep(2)
 				
 				logging()
-				time.sleep(2)
-			
+				
 			elif waterError == 1 and timesWateredToday > 1:
 				with open("error_log.csv", "a") as error_log:
 						error_log.write("\n{0},Log,Moisture sensor skipped.".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -424,17 +422,17 @@ def water_reading():
 					os.system("mpg321 -q vader_breathe.mp3")
 					os.system("mpg321 -q vader_dont_fail.mp3")
 				except:
-					os.system("mpg321 -q sensors.mp3")
+					os.system("mpg321 -q sensors_backup.mp3")
 					os.system("mpg321 -q vader_breathe.mp3")
 					os.system("mpg321 -q vader_dont_fail.mp3")
-					internet_on()
 					pass
 				
 				ledSwitch = 0
 				waterLevel = 0
+
+				time.sleep(2)
 				
 				logging()
-				time.sleep(2)
 		
 		elif dateNow != todaysDate:
 			timesWateredToday = 0
@@ -470,7 +468,6 @@ def temp_humidity():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Failed reading temp and humidity".format(strftime("%Y-%m-%d %H:%M:%S")))
-		internet_on()
 		pass
 
 ### Logging of statistics
@@ -496,7 +493,7 @@ def logging():
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Could not connect to openweather API.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		with open("stats.csv", "a") as log:
-			log.write("\n{0},{1},{2},{3},{4},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
+			log.write("\n{0},{1},{2},{3},{4},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),str(temp_c),str(o_humidity)))
 		pass
 	
 	with open("error_log.csv", "a") as error_log:
@@ -523,7 +520,7 @@ def self_diagnostics():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("Error: Internet error.".format(strftime("%Y-%m-%d %H:%M:%S")))
-		internet_on()
+		os.system("mpg321 -q diagnostics_lights_backup.mp3")
 		pass
 	
 	ledSwitch = 0
@@ -549,8 +546,7 @@ def self_diagnostics():
 		tts.save("diagnostics.mp3")
 		os.system("mpg321 -q diagnostics.mp3")
 	except:
-		print("{0}\n Error: Internet error.".format(strftime("%Y-%m-%d %H:%M:%S")))
-		internet_on()
+		os.system("mpg321 -q diagnostics_backup.mp3")
 		pass
 	
 	ledSwitch = 0
@@ -564,9 +560,31 @@ def internet_on():
 		error_log.write("\n{0},Log,Testing Internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
 	
 	global ledSwitch
+	global connected
 	
 	try:
-		urllib.request.urlopen('http://www.google.com')
+		urllib.request.urlopen('http://216.58.207.206')
+		#urllib.urlopen('http://216.58.207.206', timeout=4)
+
+		with open("error_log.csv", "a") as error_log:
+			error_log.write("\n{0},Log,We have an internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		
+		ledSwitch = 1
+		
+		Thread(target = led_green_alert).start()
+		
+		try:
+			tts = gTTS(text="Code green! All communication systems are online and working within normal parameters." , lang='en')
+			tts.save("internet_on.mp3")
+			os.system("mpg321 -q internet_on.mp3")
+		except:
+			os.system("mpg321 -q internet_on_backup.mp3")
+			pass
+
+		connected = 1
+		ledSwitch = 0
+		time.sleep(2)
+
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,No internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
@@ -582,33 +600,92 @@ def internet_on():
 			os.system("mpg321 -q vader_breathe.mp3")
 			os.system("mpg321 -q vader_dont_fail.mp3")
 		except:
-			os.system("mpg321 -q internet_off.mp3")
+			os.system("mpg321 -q internet_off_backup.mp3")
 			os.system("mpg321 -q vader_breathe.mp3")
 			os.system("mpg321 -q vader_dont_fail.mp3")
 			pass
 		
+		connected = 0
 		ledSwitch = 0
 		time.sleep(2)
 		pass
-	
-	else:
+
+def internet_on_thread():
+	while True:
+
+		time.sleep(180)
+
 		with open("error_log.csv", "a") as error_log:
-			error_log.write("\n{0},Log,We have an internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+			error_log.write("\n{0},Log,Testing Internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
 		
-		ledSwitch = 1
-		
-		Thread(target = led_green_alert).start()
-		
-		try:
-			tts = gTTS(text="Code green! All communication systems are online and working within normal parameters." , lang='en')
-			tts.save("internet_on.mp3")
-			os.system("mpg321 -q internet_on.mp3")
-		except:
-			os.system("mpg321 -q internet_on.mp3")
-			pass
-		
-		ledSwitch = 0
-		time.sleep(2)
+		global ledSwitch
+		global connected
+
+		if connected == 1:
+			try:
+				urllib.request.urlopen('http://216.58.207.206')
+				#urllib.urlopen('http://216.58.207.206', timeout=4)
+
+				with open("error_log.csv", "a") as error_log:
+					error_log.write("\n{0},Log,We have an internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				
+				connected = 1
+
+			except:
+				with open("error_log.csv", "a") as error_log:
+					error_log.write("\n{0},Error,No internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				
+				ledSwitch = 1
+				
+				Thread(target = led_red_alert).start()
+				
+				try:
+					tts = gTTS(text="Alert! All communications are down. Alert! Systems running in emergency mode. Alert! Restoring communications, priority alpha." , lang='en')
+					tts.save("internet_off.mp3")
+					os.system("mpg321 -q internet_off.mp3")
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_dont_fail.mp3")
+				except:
+					os.system("mpg321 -q internet_off_backup.mp3")
+					os.system("mpg321 -q vader_breathe.mp3")
+					os.system("mpg321 -q vader_dont_fail.mp3")
+					pass
+				
+				ledSwitch = 0
+				connected = 0
+				time.sleep(2)
+				pass
+
+		elif connected == 0:
+			try:
+				urllib.request.urlopen('http://216.58.192.142')
+				#urllib2.urlopen('http://216.58.192.142', timeout=1)
+
+				with open("error_log.csv", "a") as error_log:
+					error_log.write("\n{0},Log,We have an internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				
+				ledSwitch = 1
+				
+				Thread(target = led_green_alert).start()
+				
+				try:
+					tts = gTTS(text="Code green! All communication systems are online and working within normal parameters." , lang='en')
+					tts.save("internet_on.mp3")
+					os.system("mpg321 -q internet_on.mp3")
+				except:
+					os.system("mpg321 -q internet_on_backup.mp3")
+					pass
+
+				ledSwitch = 0
+				connected = 1
+				time.sleep(2)
+
+			except:
+				with open("error_log.csv", "a") as error_log:
+					error_log.write("\n{0},Error,No internet connection.".format(strftime("%Y-%m-%d %H:%M:%S")))
+				
+				connected = 0
+				pass
 
 ### FILE UPLOADS
 
@@ -617,18 +694,18 @@ def internet_on():
 def fileupload_init():
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,uploading initial files.".format(strftime("%Y-%m-%d %H:%M:%S")))
-	
-	host = conf['user']['host']
-	port = conf['user']['port']
-	transport = paramiko.Transport((host, port))
 
-	password = conf['user']['password']
-	username = conf['user']['username']
-	transport.connect(username = username, password = password)
-
-	sftp = paramiko.SFTPClient.from_transport(transport)
-	
 	try:
+		host = conf['user']['host']
+		port = conf['user']['port']
+		transport = paramiko.Transport((host, port))
+
+		password = conf['user']['password']
+		username = conf['user']['username']
+		transport.connect(username = username, password = password)
+
+		sftp = paramiko.SFTPClient.from_transport(transport)
+
 		sftp.chdir("/var/www/bloggmu/public/rum/blomma")
 		filepath = "stats.csv"
 		localpath = "/home/pi/kod/empirebot/stats.csv"
@@ -654,16 +731,17 @@ def fileupload_init():
 		
 		Thread(target = led_red_alert).start()
 		
-		tts = gTTS(text="Warning. Initial files error uploading." , lang='en')
-		tts.save("upload_init_error.mp3")
-		os.system("mpg321 -q upload_init_error.mp3")
-		os.system("mpg321 -q vader_breathe.mp3")
-		os.system("mpg321 -q vader_dont_fail.mp3")
+		try:
+			tts = gTTS(text="Warning. Error. Initial files could not be uploaded to the Galactic Empire." , lang='en')
+			tts.save("upload_init_error.mp3")
+			os.system("mpg321 -q upload_init_error.mp3")
+		except:
+			os.system("mpg321 -q upload_init_error_backup.mp3")
+			pass
 		
 		ledSwitch = 0
 		time.sleep(2)
-		
-		internet_on()
+
 		pass
 
 ### Stat file upload
@@ -672,17 +750,17 @@ def fileupload_stats():
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,Uploading stats".format(strftime("%Y-%m-%d %H:%M:%S")))
 	
-	host = conf['user']['host']
-	port = conf['user']['port']
-	transport = paramiko.Transport((host, port))
-
-	password = conf['user']['password']
-	username = conf['user']['username']
-	transport.connect(username = username, password = password)
-
-	sftp = paramiko.SFTPClient.from_transport(transport)
-	
 	try:
+		host = conf['user']['host']
+		port = conf['user']['port']
+		transport = paramiko.Transport((host, port))
+
+		password = conf['user']['password']
+		username = conf['user']['username']
+		transport.connect(username = username, password = password)
+
+		sftp = paramiko.SFTPClient.from_transport(transport)
+
 		sftp.chdir("/var/www/bloggmu/public/rum/blomma")
 		filepath = "stats.csv"
 		localpath = "/home/pi/kod/empirebot/stats.csv"
@@ -710,20 +788,19 @@ def fileupload_stats():
 		Thread(target = led_red_alert).start()
 		
 		try:
-			tts = gTTS(text="Warning. Status file error uploading." , lang='en')
+			tts = gTTS(text="Warning. Error. Stat files could not be uploaded to the Galactic Empire mainframe." , lang='en')
 			tts.save("upload_error.mp3")
 			os.system("mpg321 -q upload_error.mp3")
 			os.system("mpg321 -q vader_breathe.mp3")
 			os.system("mpg321 -q vader_dont_fail.mp3")
 		except:
-			os.system("mpg321 -q upload_error.mp3")
+			os.system("mpg321 -q upload_error_backup.mp3")
 			os.system("mpg321 -q vader_breathe.mp3")
 			os.system("mpg321 -q vader_dont_fail.mp3")
 			pass
 		
 		ledSwitch = 0
 		time.sleep(2)
-		internet_on()
 		pass
 
 ### Twitter
@@ -762,14 +839,13 @@ def tweet_follow():
 			os.system("mpg321 -q vader_breathe.mp3")
 			os.system("mpg321 -q vader_dont_fail.mp3")
 		except:
-			os.system("mpg321 -q twitter_follow_error.mp3")
+			os.system("mpg321 -q twitter_follow_error_backup.mp3")
 			os.system("mpg321 -q vader_breathe.mp3")
 			os.system("mpg321 -q vader_dont_fail.mp3")
 			pass
 		
 		ledSwitch = 0
 		time.sleep(2)
-		internet_on()
 		pass
 
 def tweet_auto():
@@ -827,7 +903,7 @@ def tweet_auto():
 						os.system("mpg321 -q responding_tweet.mp3")
 					except:
 						os.system("mpg321 -q emp_march_top.mp3")
-						os.system("mpg321 -q responding_tweet.mp3")
+						os.system("mpg321 -q responding_tweet_backup.mp3")
 						pass
 					
 					ledSwitch = 0
@@ -899,7 +975,6 @@ def tweet_auto():
 		except:
 			with open("error_log.csv", "a") as error_log:
 					error_log.write("\n{0},Error,Could not answer twitter message".format(strftime("%Y-%m-%d %H:%M:%S")))
-			#internet_on()
 			pass
 
 		time.sleep(60)
@@ -922,7 +997,6 @@ def sms_tank_warning():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Failed sending tank warning SMS".format(strftime("%Y-%m-%d %H:%M:%S")))
-		internet_on()
 		pass
 
 def sms_moisture_warning():
@@ -941,7 +1015,6 @@ def sms_moisture_warning():
 	except:
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Failed sending moisture sensor warning SMS".format(strftime("%Y-%m-%d %H:%M:%S")))
-		internet_on()
 		pass
 
 ### Audio controls
@@ -963,8 +1036,7 @@ def audio_vol_full():
 		tts.save("audio_full.mp3")
 		os.system("mpg321 -q audio_full.mp3")
 	except:
-		os.system("mpg321 -q audio_full.mp3")
-		internet_on()
+		os.system("mpg321 -q audio_full_backup.mp3")
 		pass
 	
 	os.system("mpg321 -q vader_yes.mp3")
@@ -983,8 +1055,7 @@ def audio_vol_none():
 		tts.save("audio_zero.mp3")
 		os.system("mpg321 -q audio_zero.mp3")
 	except:
-		os.system("mpg321 -q audio_zero.mp3")
-		internet_on()
+		os.system("mpg321 -q audio_zero_backup.mp3")
 		pass
 	
 	os.system("mpg321 -q vader_breathe.mp3")
@@ -1009,8 +1080,8 @@ def Main():
 	try:
 		led_power()
 
-		t2 = threading.Thread(target = emp_march)
-		t2.start()
+		t1 = threading.Thread(target = emp_march)
+		t1.start()
 		
 		print("---SYSTEM START UP---")
 		
@@ -1022,10 +1093,15 @@ def Main():
 		self_diagnostics()
 		temp_humidity()
 		fileupload_init()
+		internet_on()
 		
-		t1 = threading.Thread(target = tweet_auto)
-		t1.daemon = True
-		t1.start()
+		t2 = threading.Thread(target = tweet_auto)
+		t2.daemon = True
+		t2.start()
+
+		#t3 = threading.Thread(target = internet_on_thread)
+		#t3.daemon = True
+		#t3.start()
 		
 		while True:
 			tweet_follow()
