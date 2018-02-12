@@ -488,15 +488,16 @@ def logging():
 		temp_k = json_object["main"]["temp"]
 		temp_c = (temp_k - 273.15)
 		o_humidity = json_object["main"]["humidity"]
+		with open("stats.csv", "a") as log:
+			log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
 	except:
-		temp_c = None
-		o_humidity = None
+		temp_c = ""
+		o_humidity = ""
 		with open("error_log.csv", "a") as error_log:
 			error_log.write("\n{0},Error,Could not connect to openweather API.".format(strftime("%Y-%m-%d %H:%M:%S")))
+		with open("stats.csv", "a") as log:
+			log.write("\n{0},{1},{2},{3},{4},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
 		pass
-	
-	with open("stats.csv", "a") as log:
-		log.write("\n{0},{1},{2},{3},{4:0.0f},{5}".format(strftime("%Y-%m-%d %H:%M:%S"),str(temperature),str(humidity),str(waterLevel),(temp_c),str(o_humidity)))
 	
 	with open("error_log.csv", "a") as error_log:
 		error_log.write("\n{0},Log,Stats gathered. Sending stats to upload.".format(strftime("%Y-%m-%d %H:%M:%S")))
